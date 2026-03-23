@@ -1,14 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { notifications } from '@/data/mockData';
-import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
+import { Colors, BorderRadius, Spacing, Shadows, Typography } from '@/constants/theme';
+import ScreenHeader from '@/components/ui/ScreenHeader';
 
-const TYPE_COLORS: Record<string, string> = {
-  order:     '#4F46E5',
-  community: '#7C3AED',
-  event:     '#EC4899',
-  review:    '#F59E0B',
-  payment:   '#10B981',
+const TYPE_COLORS: Record<string, { bg: string; border: string; icon: string }> = {
+  order:     { bg: Colors.primary + '10', border: Colors.primary, icon: '#2563EB' },
+  community: { bg: '#7C3AED10', border: '#7C3AED', icon: '#7C3AED' },
+  event:     { bg: Colors.warning + '10', border: Colors.warning, icon: Colors.warning },
+  review:    { bg: Colors.success + '10', border: Colors.success, icon: Colors.success },
+  payment:   { bg: Colors.primary + '10', border: Colors.primary, icon: Colors.primary },
 };
 
 export default function NotificationsScreen() {
@@ -16,15 +18,15 @@ export default function NotificationsScreen() {
   const read = notifications.filter((n) => !n.unread);
 
   function NotifItem({ item }: { item: typeof notifications[0] }) {
-    const color = TYPE_COLORS[item.type] || Colors.primary;
+    const colorConfig = TYPE_COLORS[item.type] || TYPE_COLORS.order;
     return (
       <TouchableOpacity
         style={[styles.notifCard, item.unread && styles.notifUnread]}
-        activeOpacity={0.85}
+        activeOpacity={0.7}
       >
         {item.unread && <View style={styles.unreadDot} />}
-        <View style={[styles.iconBox, { backgroundColor: color + '18' }]}>
-          <Text style={styles.icon}>{item.icon}</Text>
+        <View style={[styles.iconBox, { backgroundColor: colorConfig.bg }]}>
+          <MaterialCommunityIcons name={item.icon} size={24} color={colorConfig.icon} />
         </View>
         <View style={styles.notifContent}>
           <Text style={styles.notifTitle}>{item.title}</Text>
@@ -37,6 +39,10 @@ export default function NotificationsScreen() {
 
   return (
     <View style={styles.container}>
+      <ScreenHeader
+        title="Notifications"
+        subtitle={`${unread.length} new updates`}
+      />
       <FlatList
         data={notifications}
         keyExtractor={(item) => item.id}
@@ -47,7 +53,8 @@ export default function NotificationsScreen() {
             {unread.length > 0 && (
               <>
                 <View style={styles.groupHeader}>
-                  <Text style={styles.groupTitle}>🔴 Unread ({unread.length})</Text>
+                  <MaterialCommunityIcons name="bell-ring" size={14} color={Colors.textSecondary} />
+                  <Text style={styles.groupTitle}>Unread ({unread.length})</Text>
                 </View>
                 {unread.map((n) => <NotifItem key={n.id} item={n} />)}
                 <View style={styles.groupHeader}>
@@ -60,8 +67,11 @@ export default function NotificationsScreen() {
         renderItem={({ item }) => item.unread ? null : <NotifItem item={item} />}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyEmoji}>🔔</Text>
+            <View style={styles.emptyIconBox}>
+              <MaterialCommunityIcons name="bell-off" size={48} color={Colors.textSecondary} />
+            </View>
             <Text style={styles.emptyText}>No notifications yet</Text>
+            <Text style={styles.emptySubtext}>You're all caught up!</Text>
           </View>
         }
       />
@@ -70,33 +80,102 @@ export default function NotificationsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  list: { padding: Spacing.base, paddingBottom: 40 },
-  groupHeader: { marginBottom: 8, marginTop: 4 },
-  groupTitle: { fontSize: 13, fontWeight: '700', color: Colors.subtext, textTransform: 'uppercase', letterSpacing: 0.5 },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+  },
+  list: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.base,
+    paddingBottom: 60,
+  },
+  groupHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.md,
+    marginTop: Spacing.lg,
+  },
+  groupTitle: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
   notifCard: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: 12,
-    backgroundColor: '#fff', borderRadius: BorderRadius.lg,
-    padding: 14, marginBottom: 8, ...Shadows.sm, position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    marginBottom: Spacing.sm,
+    position: 'relative',
   },
   notifUnread: {
-    borderLeftWidth: 3, borderLeftColor: Colors.primary,
-    backgroundColor: Colors.primary + '05',
+    backgroundColor: Colors.primary + '06',
+    shadowColor: 'transparent',
+    elevation: 0,
   },
   unreadDot: {
-    position: 'absolute', top: 14, right: 14,
-    width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary,
+    position: 'absolute',
+    top: Spacing.md,
+    right: Spacing.md,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.primary,
   },
   iconBox: {
-    width: 44, height: 44, borderRadius: 13,
-    alignItems: 'center', justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  icon: { fontSize: 20 },
-  notifContent: { flex: 1, paddingRight: 12 },
-  notifTitle: { fontSize: 14, fontWeight: '700', color: Colors.text, marginBottom: 3 },
-  notifBody: { fontSize: 13, color: Colors.subtext, lineHeight: 18, marginBottom: 6 },
-  notifTime: { fontSize: 11, color: Colors.subtext, fontWeight: '500' },
-  empty: { alignItems: 'center', paddingTop: 60, gap: 10 },
-  emptyEmoji: { fontSize: 48 },
-  emptyText: { fontSize: 16, color: Colors.subtext },
+  notifContent: {
+    flex: 1,
+    paddingRight: Spacing.xs,
+    gap: Spacing.xs,
+  },
+  notifTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  notifBody: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    lineHeight: 18,
+  },
+  notifTime: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  empty: {
+    alignItems: 'center',
+    paddingTop: 80,
+    gap: Spacing.md,
+  },
+  emptyIconBox: {
+    width: 80,
+    height: 80,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    ...Typography.h4,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  emptySubtext: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+  },
 });

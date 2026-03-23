@@ -1,23 +1,31 @@
 export const Colors = {
-  primary: '#4F46E5',
-  secondary: '#7C3AED',
-  accent: '#EC4899',
-  background: '#F8F8FF',
-  card: '#FFFFFF',
-  text: '#111827',
-  subtext: '#6B7280',
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
+  // Primary - calm, modern blue
+  primary: '#2563EB',
+  primaryLight: '#DBEAFE',
+  primaryDark: '#1E40AF',
+  
+  // Neutral palette
+  background: '#FFFFFF',
+  surface: '#F9FAFB',
   border: '#E5E7EB',
-  gradientStart: '#4F46E5',
-  gradientEnd: '#7C3AED',
-};
-
-export const Gradients = {
-  primary: ['#4F46E5', '#7C3AED'] as const,
-  accent: ['#EC4899', '#7C3AED'] as const,
-  dark: ['#1E1B4B', '#312E81'] as const,
+  text: '#1F2937',
+  textSecondary: '#6B7280',
+  textTertiary: '#9CA3AF',
+  
+  // Semantic colors
+  success: '#10B981',
+  successLight: '#D1FAE5',
+  warning: '#F59E0B',
+  warningLight: '#FEF3C7',
+  error: '#EF4444',
+  errorLight: '#FEE2E2',
+  info: '#3B82F6',
+  infoLight: '#DBEAFE',
+  
+  // Additional
+  white: '#FFFFFF',
+  black: '#000000',
+  disabled: '#D1D5DB',
 };
 
 export const Spacing = {
@@ -57,21 +65,21 @@ export const Shadows = {
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 2,
+    elevation: 1,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowRadius: 4,
+    elevation: 2,
   },
   lg: {
-    shadowColor: '#4F46E5',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
   },
 };

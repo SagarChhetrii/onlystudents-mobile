@@ -4,10 +4,11 @@ import {
   TouchableOpacity, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { categories } from '@/data/mockData';
-import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
-import PrimaryButton from '@/components/ui/PrimaryButton';
+import { Colors, BorderRadius, Spacing, Shadows, Typography } from '@/constants/theme';
+import ScreenHeader from '@/components/ui/ScreenHeader';
+import Card from '@/components/ui/Card';
 
 const DELIVERY_OPTIONS = ['1 day', '2 days', '3 days', '5 days', '7 days', '10 days', '14 days'];
 const REVISION_OPTIONS = ['1', '2', '3', '4', '5', 'Unlimited'];
@@ -31,7 +32,7 @@ export default function PostServiceScreen() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      Alert.alert('🎉 Service Posted!', 'Your service is live on the marketplace.', [
+      Alert.alert('Service Posted!', 'Your service is live on the marketplace.', [
         { text: 'View Marketplace', onPress: () => router.replace('/(tabs)/marketplace') },
       ]);
     }, 1200);
@@ -43,14 +44,14 @@ export default function PostServiceScreen() {
     return (
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>{label}</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} scrollEventThrottle={16}>
           <View style={styles.selectRow}>
             {options.map((opt) => (
               <TouchableOpacity
                 key={opt}
                 onPress={() => onChange(opt)}
                 style={[styles.selectChip, value === opt && styles.selectChipActive]}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
                 <Text style={[styles.selectChipText, value === opt && styles.selectChipTextActive]}>
                   {opt}
@@ -65,14 +66,10 @@ export default function PostServiceScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      {/* Intro Banner */}
-      <View style={styles.banner}>
-        <Ionicons name="briefcase-outline" size={32} color={Colors.primary} />
-        <View>
-          <Text style={styles.bannerTitle}>Post a Service</Text>
-          <Text style={styles.bannerSub}>Start earning from your skills on campus</Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title="Post a Service"
+        subtitle="Start earning from your skills"
+      />
 
       {/* Title */}
       <View style={styles.fieldGroup}>
@@ -80,7 +77,7 @@ export default function PostServiceScreen() {
         <TextInput
           style={styles.input}
           placeholder="e.g. Professional Reel Editing"
-          placeholderTextColor={Colors.subtext}
+          placeholderTextColor={Colors.textSecondary}
           value={title}
           onChangeText={setTitle}
           maxLength={80}
@@ -97,9 +94,13 @@ export default function PostServiceScreen() {
               key={cat.id}
               onPress={() => setCategory(cat.id)}
               style={[styles.catCard, category === cat.id && styles.catCardActive]}
-              activeOpacity={0.8}
+              activeOpacity={0.7}
             >
-              <Text style={styles.catIcon}>{cat.icon}</Text>
+              <MaterialCommunityIcons
+                name={cat.icon as any}
+                size={18}
+                color={category === cat.id ? Colors.primary : Colors.textSecondary}
+              />
               <Text style={[styles.catLabel, category === cat.id && styles.catLabelActive]}>
                 {cat.label}
               </Text>
@@ -114,7 +115,7 @@ export default function PostServiceScreen() {
         <TextInput
           style={[styles.input, styles.textArea]}
           placeholder="Describe what you'll deliver, your process, and why clients should choose you..."
-          placeholderTextColor={Colors.subtext}
+          placeholderTextColor={Colors.textSecondary}
           value={description}
           onChangeText={setDescription}
           multiline
@@ -133,7 +134,7 @@ export default function PostServiceScreen() {
           <TextInput
             style={[styles.input, styles.priceInput]}
             placeholder="0"
-            placeholderTextColor={Colors.subtext}
+            placeholderTextColor={Colors.textSecondary}
             value={price}
             onChangeText={setPrice}
             keyboardType="numeric"
@@ -148,83 +149,389 @@ export default function PostServiceScreen() {
       {/* Revisions */}
       <SelectGroup label="Number of Revisions" options={REVISION_OPTIONS} value={revisions} onChange={setRevisions} />
 
-      {/* Tips */}
-      <View style={styles.tipsBox}>
-        <Text style={styles.tipsTitle}>💡 Tips for a great listing</Text>
-        {[
-          'Use a clear, specific title that describes your service',
-          'Include your turnaround time and process in the description',
-          'Price competitively — check similar services first',
-          'Verified freelancers get 3× more orders',
-        ].map((tip, i) => (
-          <View key={i} style={styles.tipRow}>
-            <Ionicons name="checkmark-circle" size={14} color={Colors.success} />
-            <Text style={styles.tipText}>{tip}</Text>
+      {/* Earnings & Stats Section */}
+      <View style={styles.statsSection}>
+        <Text style={styles.sectionTitle}>Earning Potential</Text>
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>₹5K+</Text>
+            <Text style={styles.statLabel}>Avg Monthly</Text>
           </View>
-        ))}
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>90%</Text>
+            <Text style={styles.statLabel}>You Keep</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>10K+</Text>
+            <Text style={styles.statLabel}>Active Buyers</Text>
+          </View>
+        </View>
       </View>
 
-      <PrimaryButton
-        title="Publish Service 🚀"
+      {/* How It Works */}
+      <View style={styles.processSection}>
+        <Text style={styles.sectionTitle}>How It Works</Text>
+        <View style={styles.processSteps}>
+          {[
+            { num: '1', title: 'Post Your Service', desc: 'Fill in details and set your rates' },
+            { num: '2', title: 'Get Discovered', desc: 'Students browse and place orders' },
+            { num: '3', title: 'Deliver & Earn', desc: 'Complete orders and earn 90% of revenue' },
+            { num: '4', title: 'Build Reputation', desc: 'Get reviews and boost your visibility' },
+          ].map((step, i) => (
+            <View key={i} style={styles.processStep}>
+              <View style={styles.stepNumber}>
+                <Text style={styles.stepNumberText}>{step.num}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.stepTitle}>{step.title}</Text>
+                <Text style={styles.stepDesc}>{step.desc}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Requirements */}
+      <View style={styles.requirementSection}>
+        <Text style={styles.sectionTitle}>Service Requirements</Text>
+        <View style={styles.requirementList}>
+          {[
+            'Clear and detailed description of your service',
+            'Professional portfolio or samples of your work',
+            'Realistic delivery timelines (1-14 days)',
+            'Competitive pricing within your category',
+            'Professional communication with buyers',
+          ].map((req, i) => (
+            <View key={i} style={styles.requirementItem}>
+              <MaterialCommunityIcons name="check-circle" size={20} color={Colors.success} />
+              <Text style={styles.requirementText}>{req}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      <TouchableOpacity
         onPress={handleSubmit}
-        loading={loading}
-        fullWidth
-        size="lg"
-        style={{ marginBottom: 40 }}
-      />
+        disabled={loading}
+        style={[styles.publishButton, loading && styles.publishButtonDisabled]}
+        activeOpacity={0.8}
+      >
+        <MaterialCommunityIcons name="cloud-upload" size={20} color="#fff" />
+        <Text style={styles.publishButtonText}>
+          {loading ? 'Publishing...' : 'Publish Service'}
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: Spacing.base },
-  banner: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: Colors.primary + '10', borderRadius: 16,
-    padding: 16, marginBottom: 20,
-    borderWidth: 1, borderColor: Colors.primary + '20',
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
   },
-  bannerTitle: { fontSize: 17, fontWeight: '700', color: Colors.text },
-  bannerSub: { fontSize: 13, color: Colors.subtext, marginTop: 2 },
-  fieldGroup: { marginBottom: 20 },
-  label: { fontSize: 14, fontWeight: '700', color: Colors.text, marginBottom: 8 },
+  content: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.base,
+    paddingBottom: 40,
+  },
+  fieldGroup: {
+    marginBottom: Spacing.lg,
+  },
+  label: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+    marginBottom: Spacing.sm,
+  },
   input: {
-    borderWidth: 1.5, borderColor: Colors.border, borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 13, fontSize: 15,
-    color: Colors.text, backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    fontSize: 15,
+    color: Colors.text,
+    backgroundColor: Colors.white,
   },
-  textArea: { height: 120, paddingTop: 13 },
-  charCount: { fontSize: 11, color: Colors.subtext, textAlign: 'right', marginTop: 4 },
-  priceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  priceCurrency: { fontSize: 22, fontWeight: '800', color: Colors.text, marginBottom: -2 },
-  priceInput: { flex: 1, fontSize: 22, fontWeight: '700' },
-  fieldNote: { fontSize: 12, color: Colors.subtext, marginTop: 6 },
-  selectRow: { flexDirection: 'row', gap: 8 },
+  textArea: {
+    height: 120,
+    paddingTop: Spacing.md,
+  },
+  charCount: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    textAlign: 'right',
+    marginTop: Spacing.xs,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  priceCurrency: {
+    ...Typography.h3,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  priceInput: {
+    flex: 1,
+    fontSize: 22,
+    fontWeight: '700',
+  },
+  fieldNote: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
+  },
+  selectRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingRight: Spacing.base,
+  },
   selectChip: {
-    paddingHorizontal: 14, paddingVertical: 8,
-    borderRadius: BorderRadius.full, borderWidth: 1.5, borderColor: Colors.border,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
   },
-  selectChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  selectChipText: { fontSize: 13, fontWeight: '600', color: Colors.subtext },
-  selectChipTextActive: { color: '#fff' },
-  catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  selectChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  selectChipText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  selectChipTextActive: {
+    color: Colors.white,
+  },
+  catGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+  },
   catCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 14, paddingVertical: 9,
-    borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border,
-    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
   },
-  catCardActive: { backgroundColor: Colors.primary + '12', borderColor: Colors.primary },
-  catIcon: { fontSize: 16 },
-  catLabel: { fontSize: 13, fontWeight: '600', color: Colors.subtext },
-  catLabelActive: { color: Colors.primary },
-  tipsBox: {
-    backgroundColor: '#ECFDF5', borderRadius: 14, padding: 16,
-    marginBottom: 20, borderWidth: 1, borderColor: '#A7F3D0',
+  catCardActive: {
+    backgroundColor: Colors.primary + '10',
+    borderColor: Colors.primary,
   },
-  tipsTitle: { fontSize: 14, fontWeight: '700', color: '#065F46', marginBottom: 10 },
-  tipRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, marginBottom: 6 },
-  tipText: { fontSize: 13, color: '#065F46', flex: 1, lineHeight: 18 },
+  catLabel: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  catLabelActive: {
+    color: Colors.primary,
+  },
+  tipsSection: {
+    marginBottom: Spacing.lg,
+  },
+  tipSectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  tipIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.warning + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tipSectionTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  tipSectionSub: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  tipsGrid: {
+    gap: Spacing.md,
+  },
+  tipCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  tipCardNumber: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  tipCardNumberText: {
+    ...Typography.body,
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  tipCardContent: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  tipCardTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  tipCardDesc: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+
+  /* New Sections */
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.lg,
+  },
+  
+  /* Stats Section */
+  statsSection: {
+    marginBottom: Spacing.xxl,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: Colors.primary + '10',
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.primary + '30',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
+    alignItems: 'center',
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: Colors.primary,
+    marginBottom: Spacing.xs,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+
+  /* Process Section */
+  processSection: {
+    marginBottom: Spacing.xxl,
+  },
+  processSteps: {
+    gap: Spacing.md,
+  },
+  processStep: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+  },
+  stepNumber: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  stepNumberText: {
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  stepTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  stepDesc: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+  },
+
+  /* Requirement Section */
+  requirementSection: {
+    marginBottom: Spacing.xxl,
+  },
+  requirementList: {
+    gap: Spacing.md,
+  },
+  requirementItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+  },
+  requirementText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.text,
+    fontWeight: '500',
+    lineHeight: 20,
+  },
+
+  publishButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.xxl,
+    ...Shadows.md,
+  },
+  publishButtonDisabled: {
+    opacity: 0.6,
+  },
+  publishButtonText: {
+    ...Typography.body,
+    color: Colors.white,
+    fontWeight: '700',
+  },
 });

@@ -2,12 +2,13 @@ import React from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BarChart } from 'react-native-gifted-charts';
 import { earningsData, recentOrders, currentUser } from '@/data/mockData';
-import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
+import { Colors, BorderRadius, Spacing, Shadows, Typography } from '@/constants/theme';
 import Badge from '@/components/ui/Badge';
 import Card from '@/components/ui/Card';
+import ScreenHeader from '@/components/ui/ScreenHeader';
 
 const { width: W } = Dimensions.get('window');
 
@@ -25,20 +26,20 @@ export default function EarningsScreen() {
 
   const chartData = earningsData.map((d) => ({
     value: d.amount,
-    label: d.month,
-    frontColor: d.month === 'Mar' ? Colors.primary : Colors.primary + '80',
-    topLabelComponent: () => (
-      <Text style={{ fontSize: 9, color: Colors.subtext, marginBottom: 2 }}>
-        {d.amount >= 1000 ? `${(d.amount / 1000).toFixed(1)}k` : d.amount}
-      </Text>
-    ),
+    label: d.month.slice(0, 3),
+    frontColor: d.month === 'Mar' ? Colors.primary : Colors.primary + '60',
   }));
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      {/* Header */}
+      <ScreenHeader
+        title="Earnings & Analytics"
+        subtitle="Track your income and performance"
+      />
+
       {/* Summary Banner */}
-      <LinearGradient colors={['#3730A3', '#4F46E5', '#7C3AED']} style={styles.banner}>
-        <View style={styles.circle1} />
+      <View style={styles.banner}>
         <Text style={styles.bannerLabel}>Total Earnings</Text>
         <Text style={styles.bannerAmount}>₹{totalEarnings.toLocaleString('en-IN')}</Text>
         <Text style={styles.bannerSub}>Since {currentUser.joinedDate}</Text>
@@ -50,59 +51,44 @@ export default function EarningsScreen() {
           </View>
           <View style={styles.bStatDivider} />
           <View style={styles.bStat}>
-            <Text style={styles.bStatVal}>{currentUser.rating.toFixed(1)} ⭐</Text>
+            <Text style={styles.bStatVal}>{currentUser.rating.toFixed(1)}</Text>
             <Text style={styles.bStatLabel}>Avg Rating</Text>
           </View>
           <View style={styles.bStatDivider} />
           <View style={styles.bStat}>
-            <Text style={[styles.bStatVal, { color: growth >= 0 ? '#86EFAC' : '#FCA5A5' }]}>
+            <Text style={[styles.bStatVal, { color: growth >= 0 ? Colors.success : Colors.error }]}>
               {growth >= 0 ? '+' : ''}{growth}%
             </Text>
             <Text style={styles.bStatLabel}>vs Last Month</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
 
       <View style={styles.body}>
         {/* Chart */}
         <Card style={styles.chartCard}>
-          <Text style={styles.sectionTitle}>Monthly Earnings</Text>
+          <Text style={styles.sectionTitle}>Earnings Trend</Text>
           <Text style={styles.chartSubtitle}>Last 6 months</Text>
-          <View style={styles.chartWrapper}>
-            <BarChart
-              data={chartData}
-              width={W - 80}
-              height={180}
-              barWidth={32}
-              spacing={18}
-              roundedTop
-              roundedBottom={false}
-              noOfSections={4}
-              maxValue={9000}
-              yAxisTextStyle={{ color: Colors.subtext, fontSize: 10 }}
-              xAxisLabelTextStyle={{ color: Colors.subtext, fontSize: 11, fontWeight: '600' }}
-              xAxisColor={Colors.border}
-              yAxisColor={Colors.border}
-              hideRules={false}
-              rulesColor={Colors.border}
-              rulesType="solid"
-              showGradient
-              gradientColor={Colors.primary + '40'}
-              activeOpacity={0.8}
-            />
-          </View>
-
-          {/* Month labels */}
-          <View style={styles.chartLegend}>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: Colors.primary }]} />
-              <Text style={styles.legendText}>This month</Text>
-            </View>
-            <View style={styles.legendItem}>
-              <View style={[styles.legendDot, { backgroundColor: Colors.primary + '80' }]} />
-              <Text style={styles.legendText}>Previous months</Text>
-            </View>
-          </View>
+          <BarChart
+            data={chartData}
+            width={W - 80}
+            height={140}
+            barWidth={20}
+            spacing={12}
+            roundedTop
+            noOfSections={4}
+            maxValue={9000}
+            yAxisTextStyle={{ color: Colors.textSecondary, fontSize: 9 }}
+            xAxisLabelTextStyle={{ color: Colors.textSecondary, fontSize: 10, fontWeight: '600' }}
+            xAxisColor={Colors.border}
+            yAxisColor={Colors.border}
+            hideRules={false}
+            rulesColor={Colors.border}
+            rulesType="solid"
+            showGradient
+            gradientColor={Colors.primary + '30'}
+            activeOpacity={0.8}
+          />
         </Card>
 
         {/* Recent Orders */}
@@ -112,7 +98,7 @@ export default function EarningsScreen() {
             <View key={order.id} style={styles.orderCard}>
               <View style={styles.orderLeft}>
                 <View style={styles.orderIcon}>
-                  <Text style={{ fontSize: 16 }}>📦</Text>
+                  <MaterialCommunityIcons name="briefcase-variant" size={20} color={Colors.primary} />
                 </View>
                 <View>
                   <Text style={styles.orderClient}>{order.client}</Text>
@@ -131,23 +117,42 @@ export default function EarningsScreen() {
         {/* Payout Info */}
         <Card style={styles.payoutCardBottom}>
           <Text style={styles.sectionTitle}>Payout Details</Text>
-          <View style={styles.payoutRow}>
-            <Text style={styles.payoutLabel}>Platform Commission</Text>
-            <Text style={styles.payoutValue}>10%</Text>
+          <View style={styles.payoutContent}>
+            <View style={styles.payoutRow}>
+              <View style={[styles.payoutIconBox, { backgroundColor: Colors.warning + '15' }]}>
+                <MaterialCommunityIcons name="percent" size={22} color={Colors.warning} />
+              </View>
+              <View style={styles.payoutTextBox}>
+                <Text style={styles.payoutLabel}>Platform Fee</Text>
+                <Text style={styles.payoutSubtext}>10% from total earnings</Text>
+              </View>
+              <Text style={styles.payoutHighlight}>-10%</Text>
+            </View>
+
+            <View style={styles.payoutRow}>
+              <View style={[styles.payoutIconBox, { backgroundColor: Colors.success + '15' }]}>
+                <MaterialCommunityIcons name="wallet-plus" size={22} color={Colors.success} />
+              </View>
+              <View style={styles.payoutTextBox}>
+                <Text style={styles.sectionTitle}>Your Net Earnings</Text>
+                <Text style={styles.payoutSubtext}>After all deductions</Text>
+              </View>
+              <Text style={[styles.payoutAmount, { color: Colors.success }]}>
+                ₹{Math.round(totalEarnings * 0.9).toLocaleString('en-IN')}
+              </Text>
+            </View>
+
+            <View style={styles.payoutRow}>
+              <View style={[styles.payoutIconBox, { backgroundColor: Colors.primary + '15' }]}>
+                <MaterialCommunityIcons name="calendar-check" size={22} color={Colors.primary} />
+              </View>
+              <View style={styles.payoutTextBox}>
+                <Text style={styles.payoutLabel}>Next Payout</Text>
+                <Text style={styles.payoutSubtext}>Transfers every 15 days</Text>
+              </View>
+              <Text style={styles.payoutValue}>Mar 31</Text>
+            </View>
           </View>
-          <View style={styles.payoutRow}>
-            <Text style={styles.payoutLabel}>Net Earnings (after commission)</Text>
-            <Text style={[styles.payoutValue, { color: Colors.success }]}>
-              ₹{Math.round(totalEarnings * 0.9).toLocaleString('en-IN')}
-            </Text>
-          </View>
-          <View style={styles.payoutRow}>
-            <Text style={styles.payoutLabel}>Next Payout</Text>
-            <Text style={styles.payoutValue}>March 31, 2025</Text>
-          </View>
-          <Text style={styles.payoutNote}>
-            Payouts are processed every 15 days to your linked bank account.
-          </Text>
         </Card>
       </View>
     </ScrollView>
@@ -155,56 +160,230 @@ export default function EarningsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  banner: { paddingTop: 16, paddingBottom: 24, paddingHorizontal: Spacing.base, overflow: 'hidden' },
-  circle1: {
-    position: 'absolute', width: 200, height: 200, borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.05)', top: -60, right: -60,
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
   },
-  bannerLabel: { color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: '600', marginBottom: 4 },
-  bannerAmount: { color: '#fff', fontSize: 36, fontWeight: '900', marginBottom: 4, letterSpacing: -1 },
-  bannerSub: { color: 'rgba(255,255,255,0.55)', fontSize: 12, marginBottom: 16 },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  banner: {
+    marginHorizontal: Spacing.base,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
+  },
+  bannerLabel: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
+  },
+  bannerAmount: {
+    ...Typography.h1,
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+    letterSpacing: -1,
+  },
+  bannerSub: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.lg,
+  },
   bannerStats: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
-  bStat: { flex: 1, alignItems: 'center' },
-  bStatVal: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  bStatLabel: { color: 'rgba(255,255,255,0.55)', fontSize: 10, marginTop: 2, textAlign: 'center' },
-  bStatDivider: { width: 1, height: 30, backgroundColor: 'rgba(255,255,255,0.15)' },
-
-  body: { padding: Spacing.base },
-  chartCard: { marginBottom: 16 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.text, marginBottom: 4 },
-  chartSubtitle: { fontSize: 12, color: Colors.subtext, marginBottom: 16 },
-  chartWrapper: { alignItems: 'center' },
-  chartLegend: { flexDirection: 'row', gap: 16, marginTop: 12 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { fontSize: 12, color: Colors.subtext },
-
-  section: { marginBottom: 16 },
+  bStat: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  bStatVal: {
+    ...Typography.h4,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  bStatLabel: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+    textAlign: 'center',
+  },
+  bStatDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: Colors.border,
+  },
+  body: {
+    padding: Spacing.base,
+  },
+  chartCard: {
+    marginBottom: Spacing.lg,
+  },
+  chartSubtitle: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.lg,
+  },
+  summaryGrid: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
+  },
+  summaryMonth: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+  },
+  summaryAmount: {
+    ...Typography.h3,
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  sectionTitle: {
+    ...Typography.h4,
+    color: Colors.text,
+    fontWeight: '700',
+    marginBottom: Spacing.sm,
+  },
+  chartSubtitle: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.lg,
+  },
+  section: {
+    marginBottom: Spacing.lg,
+  },
   orderCard: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderRadius: BorderRadius.lg,
-    padding: 14, marginBottom: 8, ...Shadows.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    marginBottom: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
   },
-  orderLeft: { flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 },
+  orderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    flex: 1,
+  },
   orderIcon: {
-    width: 40, height: 40, borderRadius: 12,
-    backgroundColor: Colors.primary + '12', alignItems: 'center', justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  orderClient: { fontSize: 14, fontWeight: '700', color: Colors.text },
-  orderService: { fontSize: 12, color: Colors.subtext, maxWidth: 160, marginTop: 1 },
-  orderTime: { fontSize: 11, color: Colors.subtext, marginTop: 2 },
-  orderRight: { alignItems: 'flex-end', gap: 4 },
-  orderAmount: { fontSize: 15, fontWeight: '800', color: Colors.text },
-
-  payoutCard: { marginBottom: 16 },
-  payoutCardBottom: { marginBottom: 40 },
-  payoutRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  payoutLabel: { fontSize: 14, color: Colors.subtext },
-  payoutValue: { fontSize: 14, fontWeight: '700', color: Colors.text },
-  payoutNote: { fontSize: 12, color: Colors.subtext, lineHeight: 17, marginTop: 8 },
+  orderClient: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  orderService: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    maxWidth: 160,
+    marginTop: Spacing.xs,
+  },
+  orderTime: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  orderRight: {
+    alignItems: 'flex-end',
+    gap: Spacing.sm,
+  },
+  orderAmount: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '800',
+  },
+  payoutCardBottom: {
+    marginBottom: 100,
+    backgroundColor: Colors.white,
+    borderWidth: 0,
+  },
+  payoutContent: {
+    marginTop: Spacing.md,
+    gap: 0,
+  },
+  payoutRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.lg,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.surface,
+    marginBottom: Spacing.sm,
+  },
+  payoutIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  payoutTextBox: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  payoutLabel: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  payoutSubtext: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+  payoutHighlight: {
+    ...Typography.body,
+    color: Colors.warning,
+    fontWeight: '700',
+  },
+  payoutValue: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  payoutAmount: {
+    ...Typography.h3,
+    fontWeight: '800',
+  },
+  payoutNote: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    lineHeight: 17,
+    fontStyle: 'italic',
+  },
 });

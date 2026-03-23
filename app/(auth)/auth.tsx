@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ScrollView, Alert,
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Colors, BorderRadius, Spacing } from '@/constants/theme';
-import PrimaryButton from '@/components/ui/PrimaryButton';
+import { Colors, Spacing, BorderRadius, Typography } from '@/constants/theme';
+import ModernButton from '@/components/ui/ModernButton';
+import ModernTextInput from '@/components/ui/ModernTextInput';
 
 export default function AuthScreen() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
@@ -14,6 +22,7 @@ export default function AuthScreen() {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleAuth = () => {
     setLoading(true);
@@ -28,19 +37,25 @@ export default function AuthScreen() {
       style={{ flex: 1 }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Header */}
-        <LinearGradient colors={['#3730A3', '#4F46E5', '#7C3AED']} style={styles.header}>
-          <View style={styles.circle1} />
-          <View style={styles.circle2} />
-          <View style={styles.logoRow}>
-            <Text style={styles.logoEmoji}>🐝</Text>
-            <Text style={styles.appName}>onlyStudents</Text>
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <View style={styles.logoBg}>
+              <MaterialCommunityIcons name="book-open-page-variant" size={32} color={Colors.white} />
+            </View>
+            <Text style={styles.appName}>onlyStudent</Text>
           </View>
-          <Text style={styles.headerTagline}>
-            {mode === 'login' ? 'Welcome back! 👋' : 'Join 50,000+ students 🚀'}
+          <Text style={styles.tagline}>
+            {mode === 'login'
+              ? 'Welcome back'
+              : 'Join thousands of students'}
           </Text>
-        </LinearGradient>
+        </View>
 
         {/* Form Card */}
         <View style={styles.card}>
@@ -48,59 +63,57 @@ export default function AuthScreen() {
           <View style={styles.toggle}>
             <TouchableOpacity
               onPress={() => setMode('login')}
-              style={[styles.toggleBtn, mode === 'login' && styles.toggleActive]}
+              style={[styles.toggleBtn, mode === 'login' && styles.toggleBtnActive]}
               activeOpacity={0.8}
             >
-              <Text style={[styles.toggleText, mode === 'login' && styles.toggleTextActive]}>Log In</Text>
+              <Text style={[styles.toggleText, mode === 'login' && styles.toggleTextActive]}>
+                Log In
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => setMode('signup')}
-              style={[styles.toggleBtn, mode === 'signup' && styles.toggleActive]}
+              style={[styles.toggleBtn, mode === 'signup' && styles.toggleBtnActive]}
               activeOpacity={0.8}
             >
-              <Text style={[styles.toggleText, mode === 'signup' && styles.toggleTextActive]}>Sign Up</Text>
+              <Text style={[styles.toggleText, mode === 'signup' && styles.toggleTextActive]}>
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
 
           {/* Fields */}
           {mode === 'signup' && (
-            <View style={styles.fieldGroup}>
-              <Text style={styles.label}>Full Name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Aarav Singh"
-                placeholderTextColor={Colors.subtext}
-                value={name}
-                onChangeText={setName}
-                autoCapitalize="words"
-              />
-            </View>
+            <ModernTextInput
+              placeholder="Full Name"
+              value={name}
+              onChangeText={setName}
+              autoCapitalize="words"
+              icon={<MaterialCommunityIcons name="account" size={20} color={Colors.textTertiary} />}
+              error={errors.name}
+              style={styles.input}
+            />
           )}
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>College Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="yourname@iitd.ac.in"
-              placeholderTextColor={Colors.subtext}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+          <ModernTextInput
+            placeholder="College Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            icon={<MaterialCommunityIcons name="email" size={20} color={Colors.textTertiary} />}
+            error={errors.email}
+            style={styles.input}
+          />
 
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Password</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="••••••••"
-              placeholderTextColor={Colors.subtext}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+          <ModernTextInput
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            icon={<MaterialCommunityIcons name="lock" size={20} color={Colors.textTertiary} />}
+            error={errors.password}
+            style={styles.input}
+          />
 
           {mode === 'login' && (
             <TouchableOpacity style={styles.forgotRow} activeOpacity={0.7}>
@@ -108,13 +121,15 @@ export default function AuthScreen() {
             </TouchableOpacity>
           )}
 
-          <PrimaryButton
-            title={mode === 'login' ? 'Log In →' : 'Create Account →'}
+          <ModernButton
+            label={loading ? 'Loading...' : mode === 'login' ? 'Log In' : 'Create Account'}
+            variant="primary"
+            size="lg"
             onPress={handleAuth}
             loading={loading}
+            disabled={loading}
             fullWidth
-            size="lg"
-            style={{ marginTop: 8, marginBottom: 20 }}
+            style={styles.button}
           />
 
           {/* Divider */}
@@ -127,11 +142,11 @@ export default function AuthScreen() {
           {/* Social Buttons */}
           <View style={styles.socialRow}>
             <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8} onPress={handleAuth}>
-              <Text style={styles.socialIcon}>G</Text>
+              <MaterialCommunityIcons name="google" size={20} color={Colors.text} />
               <Text style={styles.socialText}>Google</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.socialBtn} activeOpacity={0.8} onPress={handleAuth}>
-              <Text style={styles.socialIcon}>in</Text>
+              <MaterialCommunityIcons name="linkedin" size={20} color={Colors.text} />
               <Text style={styles.socialText}>LinkedIn</Text>
             </TouchableOpacity>
           </View>
@@ -139,15 +154,18 @@ export default function AuthScreen() {
           {/* Footer */}
           <Text style={styles.footerNote}>
             {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
-            <Text style={styles.footerLink} onPress={() => setMode(mode === 'login' ? 'signup' : 'login')}>
+            <Text
+              style={styles.footerLink}
+              onPress={() => setMode(mode === 'login' ? 'signup' : 'login')}
+            >
               {mode === 'login' ? 'Sign Up' : 'Log In'}
             </Text>
           </Text>
 
           <Text style={styles.tos}>
             By continuing, you agree to our{' '}
-            <Text style={{ color: Colors.primary }}>Terms of Service</Text> &{' '}
-            <Text style={{ color: Colors.primary }}>Privacy Policy</Text>
+            <Text style={{ color: Colors.primary, fontWeight: '600' }}>Terms of Service</Text> and{' '}
+            <Text style={{ color: Colors.primary, fontWeight: '600' }}>Privacy Policy</Text>
           </Text>
         </View>
       </ScrollView>
@@ -156,78 +174,158 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { flexGrow: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+  },
+  content: {
+    flexGrow: 1,
+  },
 
+  /* Header */
   header: {
-    paddingTop: 60, paddingBottom: 48,
-    paddingHorizontal: 24, overflow: 'hidden',
-  },
-  circle1: {
-    position: 'absolute', width: 200, height: 200, borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.06)', top: -50, right: -50,
-  },
-  circle2: {
-    position: 'absolute', width: 150, height: 150, borderRadius: 75,
-    backgroundColor: 'rgba(255,255,255,0.04)', bottom: -30, left: -30,
-  },
-  logoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  logoEmoji: { fontSize: 28, marginRight: 8 },
-  appName: { fontSize: 22, fontWeight: '800', color: '#fff' },
-  headerTagline: { fontSize: 26, fontWeight: '700', color: '#fff' },
-
-  card: {
-    margin: 16, marginTop: -24,
-    backgroundColor: Colors.card,
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 24,
-    elevation: 8,
-  },
-
-  toggle: {
-    flexDirection: 'row',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 14,
-    padding: 4,
-    marginBottom: 24,
-  },
-  toggleBtn: {
-    flex: 1, paddingVertical: 10, borderRadius: 11,
+    paddingTop: 60,
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.base,
     alignItems: 'center',
   },
-  toggleActive: { backgroundColor: '#fff', shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, elevation: 2 },
-  toggleText: { fontSize: 15, fontWeight: '600', color: Colors.subtext },
-  toggleTextActive: { color: Colors.text },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  logoBg: {
+    width: 56,
+    height: 56,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  appName: {
+    ...Typography.h2,
+    color: Colors.text,
+  },
+  tagline: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
 
-  fieldGroup: { marginBottom: 16 },
-  label: { fontSize: 13, fontWeight: '600', color: Colors.text, marginBottom: 6 },
+  /* Card */
+  card: {
+    marginHorizontal: Spacing.base,
+    marginBottom: Spacing.xl,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+
+  /* Toggle */
+  toggle: {
+    flexDirection: 'row',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.sm,
+    marginBottom: Spacing.lg,
+    gap: Spacing.sm,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    alignItems: 'center',
+  },
+  toggleBtnActive: {
+    backgroundColor: Colors.white,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  toggleText: {
+    ...Typography.h4,
+    color: Colors.textSecondary,
+  },
+  toggleTextActive: {
+    color: Colors.primary,
+  },
+
+  /* Inputs */
   input: {
-    height: 52, borderWidth: 1.5, borderColor: Colors.border,
-    borderRadius: 14, paddingHorizontal: 16, fontSize: 15,
-    color: Colors.text, backgroundColor: '#FAFAFA',
+    marginBottom: Spacing.md,
   },
 
-  forgotRow: { alignItems: 'flex-end', marginBottom: 8, marginTop: -8 },
-  forgotText: { fontSize: 13, color: Colors.primary, fontWeight: '600' },
+  forgotRow: {
+    alignItems: 'flex-end',
+    marginBottom: Spacing.md,
+    marginTop: -Spacing.sm,
+  },
+  forgotText: {
+    ...Typography.body,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
 
-  divider: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
-  dividerText: { marginHorizontal: 12, color: Colors.subtext, fontSize: 13 },
+  /* Button */
+  button: {
+    marginVertical: Spacing.md,
+  },
 
-  socialRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
+  /* Divider */
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: Spacing.lg,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.border,
+  },
+  dividerText: {
+    marginHorizontal: Spacing.md,
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+  },
+
+  /* Social Buttons */
+  socialRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
   socialBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: Colors.border, borderRadius: 14,
-    paddingVertical: 13, gap: 8,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
   },
-  socialIcon: { fontSize: 16, fontWeight: '800', color: Colors.text },
-  socialText: { fontSize: 14, fontWeight: '600', color: Colors.text },
+  socialText: {
+    ...Typography.h4,
+    color: Colors.text,
+  },
 
-  footerNote: { textAlign: 'center', color: Colors.subtext, fontSize: 14, marginBottom: 12 },
-  footerLink: { color: Colors.primary, fontWeight: '700' },
-  tos: { textAlign: 'center', color: Colors.subtext, fontSize: 11, lineHeight: 17 },
+  /* Footer */
+  footerNote: {
+    textAlign: 'center',
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+  },
+  footerLink: {
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  tos: {
+    textAlign: 'center',
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    lineHeight: 17,
+  },
 });

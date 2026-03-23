@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { events } from '@/data/mockData';
-import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
+import { Colors, BorderRadius, Spacing, Shadows, Typography } from '@/constants/theme';
 import Badge from '@/components/ui/Badge';
+import ScreenHeader from '@/components/ui/ScreenHeader';
 
 const FILTERS = ['All', 'Tech', 'Cultural', 'Startup', 'Photography'];
 
@@ -21,26 +22,31 @@ export default function EventsScreen() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Events</Text>
-        <Text style={styles.headerSub}>Discover what's happening on campus</Text>
+      <ScreenHeader
+        title="Events"
+        subtitle="Discover what's happening on campus"
+      />
 
-        {/* Filter chips */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
-          <View style={styles.filterRow}>
-            {FILTERS.map((f) => (
-              <TouchableOpacity
-                key={f}
-                onPress={() => setActiveFilter(f)}
-                style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>{f}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      </View>
+      {/* Filter chips */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterScroll}
+        contentContainerStyle={styles.filterRow}
+      >
+        {FILTERS.map((f) => (
+          <TouchableOpacity
+            key={f}
+            onPress={() => setActiveFilter(f)}
+            style={[styles.filterChip, activeFilter === f && styles.filterChipActive]}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.filterText, activeFilter === f && styles.filterTextActive]}>
+              {f}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
 
       <FlatList
         data={filtered}
@@ -49,7 +55,13 @@ export default function EventsScreen() {
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={{ fontSize: 48 }}>🗓️</Text>
+            <View style={styles.emptyIcon}>
+              <MaterialCommunityIcons
+                name="calendar-blank"
+                size={48}
+                color={Colors.textSecondary}
+              />
+            </View>
             <Text style={styles.emptyText}>No events found</Text>
           </View>
         }
@@ -62,9 +74,13 @@ export default function EventsScreen() {
               style={styles.eventCard}
             >
               {/* Header */}
-              <View style={[styles.cardHeader, { backgroundColor: event.communityColor + '15' }]}>
-                <View style={[styles.cardEmoji, { backgroundColor: event.communityColor + '25' }]}>
-                  <Text style={{ fontSize: 28 }}>{event.emoji}</Text>
+              <View style={[styles.cardHeader, { backgroundColor: event.communityColor + '10' }]}>
+                <View style={[styles.cardEmoji, { backgroundColor: event.communityColor + '20' }]}>
+                  <MaterialCommunityIcons
+                    name={event.emoji as any}
+                    size={28}
+                    color={event.communityColor}
+                  />
                 </View>
                 <View style={styles.cardHeaderInfo}>
                   <Text style={[styles.communityLabel, { color: event.communityColor }]}>
@@ -72,7 +88,13 @@ export default function EventsScreen() {
                   </Text>
                   {event.prize && (
                     <View style={styles.prizeTag}>
-                      <Text style={styles.prizeText}>🏆 {event.prize}</Text>
+                      <MaterialCommunityIcons
+                        name="trophy"
+                        size={12}
+                        color="#92400E"
+                        style={{ marginRight: Spacing.xs }}
+                      />
+                      <Text style={styles.prizeText}>{event.prize}</Text>
                     </View>
                   )}
                 </View>
@@ -85,15 +107,15 @@ export default function EventsScreen() {
 
                 <View style={styles.metaList}>
                   <View style={styles.metaItem}>
-                    <Ionicons name="calendar-outline" size={13} color={Colors.subtext} />
+                    <MaterialCommunityIcons name="calendar" size={14} color={Colors.textSecondary} />
                     <Text style={styles.metaText}>{event.date}</Text>
                   </View>
                   <View style={styles.metaItem}>
-                    <Ionicons name="time-outline" size={13} color={Colors.subtext} />
+                    <MaterialCommunityIcons name="clock-outline" size={14} color={Colors.textSecondary} />
                     <Text style={styles.metaText}>{event.time}</Text>
                   </View>
                   <View style={styles.metaItem}>
-                    <Ionicons name="location-outline" size={13} color={Colors.subtext} />
+                    <MaterialCommunityIcons name="map-marker" size={14} color={Colors.textSecondary} />
                     <Text style={styles.metaText} numberOfLines={1}>{event.location}</Text>
                   </View>
                 </View>
@@ -128,7 +150,7 @@ export default function EventsScreen() {
 
                 {event.isRegistered && (
                   <View style={styles.registeredRow}>
-                    <Ionicons name="checkmark-circle" size={14} color={Colors.success} />
+                    <MaterialCommunityIcons name="check-circle" size={14} color={Colors.success} />
                     <Text style={styles.registeredText}>You're registered!</Text>
                   </View>
                 )}
@@ -142,69 +164,194 @@ export default function EventsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  header: {
-    backgroundColor: '#fff', paddingTop: 56, paddingBottom: 16,
-    paddingHorizontal: Spacing.base, borderBottomWidth: 1, borderBottomColor: Colors.border,
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
   },
-  headerTitle: { fontSize: 26, fontWeight: '800', color: Colors.text, marginBottom: 2 },
-  headerSub: { fontSize: 13, color: Colors.subtext },
-  filterRow: { flexDirection: 'row', gap: 8, paddingBottom: 2 },
+  filterScroll: {
+    maxHeight: 60,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.sm,
+  },
   filterChip: {
-    paddingHorizontal: 16, paddingVertical: 7,
-    borderRadius: BorderRadius.full, borderWidth: 1.5, borderColor: Colors.border,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
   },
-  filterChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  filterText: { fontSize: 13, fontWeight: '600', color: Colors.subtext },
-  filterTextActive: { color: '#fff' },
-  list: { padding: Spacing.base, paddingBottom: 80 },
-  empty: { alignItems: 'center', paddingTop: 40, gap: 8 },
-  emptyText: { fontSize: 16, color: Colors.subtext },
+  filterChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  filterTextActive: {
+    color: Colors.white,
+  },
+  list: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.md,
+    paddingBottom: 100,
+  },
+  empty: {
+    alignItems: 'center',
+    paddingTop: 100,
+    paddingBottom: 100,
+    gap: Spacing.lg,
+  },
+  emptyIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyText: {
+    ...Typography.h3,
+    color: Colors.text,
+  },
 
   eventCard: {
-    backgroundColor: '#fff', borderRadius: BorderRadius.xl,
-    marginBottom: 14, overflow: 'hidden', ...Shadows.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
+    overflow: 'hidden',
+    ...Shadows.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
   cardHeader: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    padding: Spacing.md,
   },
   cardEmoji: {
-    width: 48, height: 48, borderRadius: 14,
-    alignItems: 'center', justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  cardHeaderInfo: { flex: 1 },
-  communityLabel: { fontSize: 12, fontWeight: '700', marginBottom: 2 },
+  cardHeaderInfo: {
+    flex: 1,
+  },
+  communityLabel: {
+    ...Typography.label,
+    marginBottom: Spacing.xs,
+  },
   prizeTag: {
-    backgroundColor: '#FEF3C7', paddingHorizontal: 8, paddingVertical: 2,
-    borderRadius: 6, alignSelf: 'flex-start',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  prizeText: { fontSize: 10, fontWeight: '600', color: '#92400E' },
+  prizeText: {
+    ...Typography.caption,
+    color: '#92400E',
+    fontWeight: '600',
+  },
 
-  cardBody: { padding: 14, paddingTop: 10 },
-  eventTitle: { fontSize: 17, fontWeight: '800', color: Colors.text, marginBottom: 6 },
-  eventDesc: { fontSize: 13, color: Colors.subtext, lineHeight: 18, marginBottom: 10 },
+  cardBody: {
+    padding: Spacing.md,
+    paddingTop: Spacing.md,
+  },
+  eventTitle: {
+    ...Typography.h4,
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+    fontWeight: '700',
+  },
+  eventDesc: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+    lineHeight: 18,
+  },
 
-  metaList: { gap: 5, marginBottom: 10 },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  metaText: { fontSize: 12, color: Colors.subtext, flex: 1 },
+  metaList: {
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  metaText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    flex: 1,
+  },
 
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 12 },
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
   tag: {
-    backgroundColor: Colors.primary + '12', paddingHorizontal: 10, paddingVertical: 4,
+    backgroundColor: Colors.primary + '12',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.full,
   },
-  tagText: { fontSize: 11, fontWeight: '600', color: Colors.primary },
-
-  capacityRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  capacityText: { fontSize: 12, color: Colors.subtext },
-  capacityPct: { fontSize: 12, fontWeight: '700', color: Colors.primary },
-  capacityBar: {
-    height: 5, backgroundColor: '#E5E7EB', borderRadius: 3, marginBottom: 10, overflow: 'hidden',
+  tagText: {
+    ...Typography.caption,
+    color: Colors.primary,
+    fontWeight: '600',
   },
-  capacityFill: { height: '100%', borderRadius: 3 },
 
-  registeredRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  registeredText: { fontSize: 12, color: Colors.success, fontWeight: '600' },
+  capacityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  capacityText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+  },
+  capacityPct: {
+    ...Typography.bodySmall,
+    fontWeight: '700',
+    color: Colors.primary,
+  },
+  capacityBar: {
+    height: 5,
+    backgroundColor: Colors.border,
+    borderRadius: BorderRadius.sm,
+    marginBottom: Spacing.md,
+    overflow: 'hidden',
+  },
+  capacityFill: {
+    height: '100%',
+    borderRadius: BorderRadius.sm,
+  },
+
+  registeredRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  registeredText: {
+    ...Typography.bodySmall,
+    color: Colors.success,
+    fontWeight: '600',
+  },
 });

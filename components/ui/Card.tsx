@@ -27,7 +27,7 @@ export default function Card({ children, style, variant = 'default', padding = 1
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: Colors.card,
+    backgroundColor: Colors.white,
     borderRadius: BorderRadius.lg,
     ...Shadows.md,
   },

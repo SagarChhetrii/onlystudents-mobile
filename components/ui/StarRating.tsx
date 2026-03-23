@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors } from '@/constants/theme';
+import { Colors, Typography } from '@/constants/theme';
 
 interface Props {
   rating: number;
@@ -45,6 +45,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   reviews: {
-    color: Colors.subtext,
+    color: Colors.textSecondary,
   },
 });

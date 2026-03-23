@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TextInput,
-  TouchableOpacity, Alert, Switch,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  Switch,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors, BorderRadius, Spacing } from '@/constants/theme';
-import PrimaryButton from '@/components/ui/PrimaryButton';
+import { Colors, BorderRadius, Spacing, Typography, Shadows } from '@/constants/theme';
+import ModernButton from '@/components/ui/ModernButton';
 
 const EVENT_CATEGORIES = [
-  { id: 'tech',    label: 'Technology', icon: '💻' },
-  { id: 'culture', label: 'Cultural',   icon: '🎭' },
-  { id: 'startup', label: 'Startup',    icon: '🚀' },
-  { id: 'photo',   label: 'Creative',   icon: '📸' },
-  { id: 'sports',  label: 'Sports',     icon: '⚽' },
-  { id: 'talk',    label: 'Talk/Panel', icon: '🎤' },
-  { id: 'workshop',label: 'Workshop',   icon: '🔧' },
-  { id: 'other',   label: 'Other',      icon: '🌟' },
+  { id: 'tech', label: 'Tech', icon: 'code-braces' },
+  { id: 'culture', label: 'Culture', icon: 'music' },
+  { id: 'startup', label: 'Startup', icon: 'rocket-launch' },
+  { id: 'creative', label: 'Creative', icon: 'palette' },
+  { id: 'sports', label: 'Sports', icon: 'soccer' },
+  { id: 'seminar', label: 'Seminar', icon: 'microphone' },
+  { id: 'workshop', label: 'Workshop', icon: 'wrench' },
+  { id: 'other', label: 'Other', icon: 'star' },
 ];
 
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
 export default function CreateEventScreen() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -31,257 +43,619 @@ export default function CreateEventScreen() {
   const [fee, setFee] = useState('');
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!title.trim()) newErrors.title = 'Event title is required';
+    if (!description.trim()) newErrors.description = 'Description is required';
+    if (!location.trim()) newErrors.location = 'Location is required';
+    if (!date.trim()) newErrors.date = 'Date is required';
+    if (!category) newErrors.category = 'Please select a category';
+    if (!isFree && !fee.trim()) newErrors.fee = 'Fee is required';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleCreate = () => {
-    if (!title || !description || !location || !date || !category) {
-      Alert.alert('Missing Info', 'Please fill in all required fields.');
+    if (!validateForm()) {
+      Alert.alert('Missing Fields', 'Please fill in all required fields.');
       return;
     }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      Alert.alert('🎉 Event Created!', 'Your event is live and visible to students.', [
+      Alert.alert('✨ Event Created!', 'Your event is now live and visible to students.', [
         { text: 'View Events', onPress: () => router.replace('/(tabs)/events') },
       ]);
     }, 1200);
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      {/* Banner */}
-      <View style={styles.banner}>
-        <Ionicons name="calendar-outline" size={32} color={Colors.accent} />
-        <View>
-          <Text style={styles.bannerTitle}>Create an Event</Text>
-          <Text style={styles.bannerSub}>Bring your campus community together</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()}>
+            <MaterialCommunityIcons name="chevron-left" size={24} color={Colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Create Event</Text>
+          <View style={{ width: 24 }} />
         </View>
-      </View>
 
-      {/* Title */}
-      <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Event Title *</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. Annual Hackathon 2025"
-          placeholderTextColor={Colors.subtext}
-          value={title}
-          onChangeText={setTitle}
-          maxLength={100}
-        />
-      </View>
+        {/* Event Details Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIconBox}>
+              <MaterialCommunityIcons name="information-outline" size={18} color={Colors.white} />
+            </View>
+            <Text style={styles.sectionTitle}>Event Details</Text>
+          </View>
 
-      {/* Category */}
-      <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Category *</Text>
-        <View style={styles.catGrid}>
-          {EVENT_CATEGORIES.map((cat) => (
-            <TouchableOpacity
-              key={cat.id}
-              onPress={() => setCategory(cat.id)}
-              style={[styles.catCard, category === cat.id && styles.catCardActive]}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.catIcon}>{cat.icon}</Text>
-              <Text style={[styles.catLabel, category === cat.id && styles.catLabelActive]}>
-                {cat.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
+          {/* Title Input */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Event Title *</Text>
+            <View style={[styles.input, errors.title && styles.inputError]}>
+              <MaterialCommunityIcons name="pencil" size={16} color={Colors.textSecondary} />
+              <TextInput
+                style={styles.inputText}
+                placeholder="e.g. Annual Hackathon 2025"
+                placeholderTextColor={Colors.textSecondary}
+                value={title}
+                onChangeText={(text) => {
+                  setTitle(text);
+                  if (errors.title) setErrors({ ...errors, title: '' });
+                }}
+                maxLength={100}
+              />
+            </View>
+            {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
+            <Text style={styles.charCount}>{title.length}/100</Text>
+          </View>
 
-      {/* Description */}
-      <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Description *</Text>
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          placeholder="Describe your event, what attendees can expect, prizes, agenda..."
-          placeholderTextColor={Colors.subtext}
-          value={description}
-          onChangeText={setDescription}
-          multiline
-          numberOfLines={5}
-          textAlignVertical="top"
-          maxLength={600}
-        />
-        <Text style={styles.charCount}>{description.length}/600</Text>
-      </View>
+          {/* Description Input */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Description *</Text>
+            <View style={[styles.textArea, errors.description && styles.inputError]}>
+              <TextInput
+                style={styles.textAreaInput}
+                placeholder="Describe your event, agenda, expectations, prizes..."
+                placeholderTextColor={Colors.textSecondary}
+                value={description}
+                onChangeText={(text) => {
+                  setDescription(text);
+                  if (errors.description) setErrors({ ...errors, description: '' });
+                }}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+                maxLength={500}
+              />
+            </View>
+            {errors.description && <Text style={styles.errorText}>{errors.description}</Text>}
+            <Text style={styles.charCount}>{description.length}/500</Text>
+          </View>
 
-      {/* Date & Time */}
-      <View style={styles.row2}>
-        <View style={[styles.fieldGroup, { flex: 1 }]}>
-          <Text style={styles.label}>Date *</Text>
-          <View style={styles.inputIcon}>
-            <Ionicons name="calendar-outline" size={16} color={Colors.subtext} />
-            <TextInput
-              style={styles.inputInline}
-              placeholder="March 15, 2025"
-              placeholderTextColor={Colors.subtext}
-              value={date}
-              onChangeText={setDate}
-            />
+          {/* Category Selection */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Category *</Text>
+            <View style={styles.categoryGrid}>
+              {EVENT_CATEGORIES.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  onPress={() => {
+                    setCategory(cat.id);
+                    if (errors.category) setErrors({ ...errors, category: '' });
+                  }}
+                  style={[
+                    styles.categoryCard,
+                    category === cat.id && styles.categoryCardActive,
+                  ]}
+                  activeOpacity={0.7}
+                >
+                  <MaterialCommunityIcons
+                    name={cat.icon as any}
+                    size={22}
+                    color={category === cat.id ? Colors.white : Colors.primary}
+                  />
+                  <Text
+                    style={[
+                      styles.categoryLabel,
+                      category === cat.id && styles.categoryLabelActive,
+                    ]}
+                  >
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {errors.category && <Text style={styles.errorText}>{errors.category}</Text>}
           </View>
         </View>
-        <View style={[styles.fieldGroup, { flex: 1 }]}>
-          <Text style={styles.label}>Time</Text>
-          <View style={styles.inputIcon}>
-            <Ionicons name="time-outline" size={16} color={Colors.subtext} />
-            <TextInput
-              style={styles.inputInline}
-              placeholder="9:00 AM"
-              placeholderTextColor={Colors.subtext}
-              value={time}
-              onChangeText={setTime}
-            />
+
+        {/* When & Where Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIconBox}>
+              <MaterialCommunityIcons name="calendar-clock" size={18} color={Colors.white} />
+            </View>
+            <Text style={styles.sectionTitle}>When & Where</Text>
+          </View>
+
+          {/* Date and Time Row */}
+          <View style={styles.twoColumnRow}>
+            <View style={styles.halfField}>
+              <Text style={styles.label}>Date *</Text>
+              <View style={[styles.input, errors.date && styles.inputError]}>
+                <MaterialCommunityIcons name="calendar" size={16} color={Colors.textSecondary} />
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="Mar 15, 2025"
+                  placeholderTextColor={Colors.textSecondary}
+                  value={date}
+                  onChangeText={(text) => {
+                    setDate(text);
+                    if (errors.date) setErrors({ ...errors, date: '' });
+                  }}
+                />
+              </View>
+              {errors.date && <Text style={styles.errorText}>{errors.date}</Text>}
+            </View>
+
+            <View style={styles.halfField}>
+              <Text style={styles.label}>Time</Text>
+              <View style={styles.input}>
+                <MaterialCommunityIcons name="clock-outline" size={16} color={Colors.textSecondary} />
+                <TextInput
+                  style={styles.inputText}
+                  placeholder="9:00 AM"
+                  placeholderTextColor={Colors.textSecondary}
+                  value={time}
+                  onChangeText={setTime}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Location Input */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Location *</Text>
+            <View style={[styles.input, errors.location && styles.inputError]}>
+              <MaterialCommunityIcons name="map-marker" size={16} color={Colors.textSecondary} />
+              <TextInput
+                style={styles.inputText}
+                placeholder="Building, Campus, City"
+                placeholderTextColor={Colors.textSecondary}
+                value={location}
+                onChangeText={(text) => {
+                  setLocation(text);
+                  if (errors.location) setErrors({ ...errors, location: '' });
+                }}
+              />
+            </View>
+            {errors.location && <Text style={styles.errorText}>{errors.location}</Text>}
+          </View>
+
+          {/* Max Capacity Input */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Max Capacity</Text>
+            <View style={styles.input}>
+              <MaterialCommunityIcons name="account-multiple" size={16} color={Colors.textSecondary} />
+              <TextInput
+                style={styles.inputText}
+                placeholder="e.g. 500"
+                placeholderTextColor={Colors.textSecondary}
+                value={maxCapacity}
+                onChangeText={setMaxCapacity}
+                keyboardType="numeric"
+              />
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* Location */}
-      <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Location *</Text>
-        <View style={styles.inputIcon}>
-          <Ionicons name="location-outline" size={16} color={Colors.subtext} />
-          <TextInput
-            style={[styles.inputInline, { flex: 1 }]}
-            placeholder="e.g. Lecture Hall, IIT Delhi"
-            placeholderTextColor={Colors.subtext}
-            value={location}
-            onChangeText={setLocation}
+        {/* Pricing Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIconBox}>
+              <MaterialCommunityIcons name="currency-rupee" size={18} color={Colors.white} />
+            </View>
+            <Text style={styles.sectionTitle}>Pricing</Text>
+          </View>
+
+          {/* Free Event Toggle */}
+          <View style={styles.toggleContainer}>
+            <View style={styles.toggleLeft}>
+              <Text style={styles.toggleLabel}>Free Event</Text>
+              <Text style={styles.toggleSubText}>Free entry for all students</Text>
+            </View>
+            <Switch
+              value={isFree}
+              onValueChange={setIsFree}
+              trackColor={{ false: Colors.border, true: Colors.success + '40' }}
+              thumbColor={isFree ? Colors.success : Colors.textSecondary}
+            />
+          </View>
+
+          {/* Fee Input (Conditional) */}
+          {!isFree && (
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Registration Fee *</Text>
+              <View style={[styles.input, errors.fee && styles.inputError]}>
+                <Text style={styles.currencySymbol}>₹</Text>
+                <TextInput
+                  style={[styles.inputText, styles.feeInput]}
+                  placeholder="299"
+                  placeholderTextColor={Colors.textSecondary}
+                  value={fee}
+                  onChangeText={(text) => {
+                    setFee(text);
+                    if (errors.fee) setErrors({ ...errors, fee: '' });
+                  }}
+                  keyboardType="numeric"
+                />
+              </View>
+              {errors.fee && <Text style={styles.errorText}>{errors.fee}</Text>}
+            </View>
+          )}
+        </View>
+
+        {/* Tags Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIconBox}>
+              <MaterialCommunityIcons name="tag-multiple" size={18} color={Colors.white} />
+            </View>
+            <Text style={styles.sectionTitle}>Tags</Text>
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Add Tags</Text>
+            <View style={styles.input}>
+              <MaterialCommunityIcons name="tag-multiple" size={16} color={Colors.textSecondary} />
+              <TextInput
+                style={styles.inputText}
+                placeholder="Hackathon, AI/ML, Open to All..."
+                placeholderTextColor={Colors.textSecondary}
+                value={tags}
+                onChangeText={setTags}
+              />
+            </View>
+            <Text style={styles.helperText}>Comma-separated tags help students find your event</Text>
+          </View>
+        </View>
+
+        {/* Upload Section */}
+        <TouchableOpacity style={styles.uploadBox} activeOpacity={0.8}>
+          <MaterialCommunityIcons name="image-plus" size={44} color={Colors.primary} />
+          <Text style={styles.uploadTitle}>Add Cover Image</Text>
+          <Text style={styles.uploadSubtext}>JPG, PNG · Max 5MB · 1200×630 recommended</Text>
+        </TouchableOpacity>
+
+        {/* Buttons */}
+        <View style={styles.buttonGroup}>
+          <ModernButton
+            label={loading ? 'Publishing...' : 'Publish Event'}
+            onPress={handleCreate}
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={loading}
+            disabled={loading}
+          />
+          <ModernButton
+            label="Cancel"
+            onPress={() => router.back()}
+            variant="secondary"
+            size="lg"
+            fullWidth
+            disabled={loading}
           />
         </View>
-      </View>
-
-      {/* Capacity */}
-      <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Max Capacity</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="e.g. 500"
-          placeholderTextColor={Colors.subtext}
-          value={maxCapacity}
-          onChangeText={setMaxCapacity}
-          keyboardType="numeric"
-        />
-      </View>
-
-      {/* Free Toggle */}
-      <View style={styles.toggleRow}>
-        <View>
-          <Text style={styles.label}>Free Event</Text>
-          <Text style={styles.toggleSub}>Toggle off to add registration fee</Text>
-        </View>
-        <Switch
-          value={isFree}
-          onValueChange={setIsFree}
-          trackColor={{ false: Colors.border, true: Colors.success + '60' }}
-          thumbColor={isFree ? Colors.success : '#f4f3f4'}
-        />
-      </View>
-
-      {!isFree && (
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Registration Fee (₹)</Text>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceCurrency}>₹</Text>
-            <TextInput
-              style={[styles.input, styles.priceInput]}
-              placeholder="299"
-              placeholderTextColor={Colors.subtext}
-              value={fee}
-              onChangeText={setFee}
-              keyboardType="numeric"
-            />
-          </View>
-        </View>
-      )}
-
-      {/* Tags */}
-      <View style={styles.fieldGroup}>
-        <Text style={styles.label}>Tags (comma-separated)</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Hackathon, AI/ML, Cash Prize, Open to All"
-          placeholderTextColor={Colors.subtext}
-          value={tags}
-          onChangeText={setTags}
-        />
-        <Text style={styles.fieldNote}>Tags help students discover your event</Text>
-      </View>
-
-      {/* Image Upload placeholder */}
-      <TouchableOpacity style={styles.uploadBox} activeOpacity={0.8}>
-        <Ionicons name="image-outline" size={32} color={Colors.subtext} />
-        <Text style={styles.uploadTitle}>Add Event Cover Image</Text>
-        <Text style={styles.uploadSub}>JPG, PNG · Max 5MB · Recommended 1200×630</Text>
-      </TouchableOpacity>
-
-      <PrimaryButton
-        title="Publish Event 🎉"
-        onPress={handleCreate}
-        loading={loading}
-        fullWidth
-        size="lg"
-        style={{ marginBottom: 40 }}
-      />
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
+
+// ============================================================================
+// STYLES
+// ============================================================================
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  content: { padding: Spacing.base },
-  banner: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: '#FDF2F8', borderRadius: 16,
-    padding: 16, marginBottom: 20,
-    borderWidth: 1, borderColor: '#FBCFE8',
+  // Main Container
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
   },
-  bannerTitle: { fontSize: 17, fontWeight: '700', color: Colors.text },
-  bannerSub: { fontSize: 13, color: Colors.subtext, marginTop: 2 },
-  fieldGroup: { marginBottom: 18 },
-  label: { fontSize: 14, fontWeight: '700', color: Colors.text, marginBottom: 8 },
+  scrollContent: {
+    paddingBottom: Spacing.lg,
+  },
+
+  // ========================================================================
+  // HEADER
+  // ========================================================================
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.white,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+
+  // ========================================================================
+  // SECTIONS
+  // ========================================================================
+  section: {
+    marginHorizontal: Spacing.base,
+    marginTop: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    ...Shadows.sm,
+  },
+
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+    paddingBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    gap: Spacing.md,
+  },
+
+  sectionIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+
+  // ========================================================================
+  // FIELD GROUP
+  // ========================================================================
+  fieldGroup: {
+    marginBottom: Spacing.lg,
+  },
+
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.text,
+    marginBottom: Spacing.sm,
+  },
+
+  // ========================================================================
+  // INPUT FIELDS
+  // ========================================================================
   input: {
-    borderWidth: 1.5, borderColor: Colors.border, borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 13, fontSize: 15,
-    color: Colors.text, backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    height: 48,
   },
-  textArea: { height: 120, paddingTop: 13 },
-  charCount: { fontSize: 11, color: Colors.subtext, textAlign: 'right', marginTop: 4 },
-  row2: { flexDirection: 'row', gap: 12 },
-  inputIcon: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    borderWidth: 1.5, borderColor: Colors.border, borderRadius: 14,
-    paddingHorizontal: 14, paddingVertical: 13,
-    backgroundColor: '#fff',
+
+  inputText: {
+    flex: 1,
+    fontSize: 14,
+    color: Colors.text,
+    padding: 0,
   },
-  inputInline: { flex: 1, fontSize: 14, color: Colors.text },
-  fieldNote: { fontSize: 12, color: Colors.subtext, marginTop: 5 },
-  catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  catCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 8,
-    borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border,
-    backgroundColor: '#fff',
+
+  inputError: {
+    borderColor: Colors.error,
+    backgroundColor: Colors.error + '08',
   },
-  catCardActive: { backgroundColor: '#FDF2F8', borderColor: Colors.accent },
-  catIcon: { fontSize: 15 },
-  catLabel: { fontSize: 12, fontWeight: '600', color: Colors.subtext },
-  catLabelActive: { color: Colors.accent },
-  toggleRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#fff', borderRadius: 14, padding: 16, marginBottom: 18,
-    borderWidth: 1, borderColor: Colors.border,
+
+  feeInput: {
+    fontSize: 18,
+    fontWeight: '600',
   },
-  toggleSub: { fontSize: 12, color: Colors.subtext, marginTop: 2 },
-  priceRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  priceCurrency: { fontSize: 22, fontWeight: '800', color: Colors.text },
-  priceInput: { flex: 1, fontSize: 22, fontWeight: '700' },
+
+  // ========================================================================
+  // TEXT AREA
+  // ========================================================================
+  textArea: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    minHeight: 100,
+  },
+
+  textAreaInput: {
+    flex: 1,
+    width: '100%',
+    fontSize: 14,
+    color: Colors.text,
+    padding: 0,
+    textAlignVertical: 'top',
+  },
+
+  charCount: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+    textAlign: 'right',
+  },
+
+  errorText: {
+    fontSize: 12,
+    color: Colors.error,
+    marginTop: Spacing.xs,
+    fontWeight: '600',
+  },
+
+  helperText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: Spacing.sm,
+    fontStyle: 'italic',
+  },
+
+  // ========================================================================
+  // CATEGORY GRID
+  // ========================================================================
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    justifyContent: 'space-between',
+  },
+
+  categoryCard: {
+    width: '23%',
+    aspectRatio: 1.15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    paddingHorizontal: Spacing.xs,
+    paddingVertical: Spacing.xs,
+  },
+
+  categoryCardActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+
+  categoryLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.text,
+    marginTop: Spacing.xs,
+    textAlign: 'center',
+    lineHeight: 12,
+  },
+
+  categoryLabelActive: {
+    color: Colors.white,
+  },
+
+  // ========================================================================
+  // TWO COLUMN ROW
+  // ========================================================================
+  twoColumnRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+
+  halfField: {
+    flex: 1,
+  },
+
+  // ========================================================================
+  // TOGGLE CONTAINER
+  // ========================================================================
+  toggleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.primary + '08',
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: Colors.primary + '20',
+  },
+
+  toggleLeft: {
+    flex: 1,
+  },
+
+  toggleLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+
+  toggleSubText: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+  },
+
+  currencySymbol: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+
+  // ========================================================================
+  // UPLOAD SECTION
+  // ========================================================================
   uploadBox: {
-    borderWidth: 2, borderColor: Colors.border, borderStyle: 'dashed',
-    borderRadius: 16, padding: 28, alignItems: 'center', marginBottom: 20,
-    backgroundColor: '#FAFAFA',
+    marginHorizontal: Spacing.base,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
+    paddingVertical: Spacing.xxl,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    ...Shadows.sm,
   },
-  uploadTitle: { fontSize: 15, fontWeight: '600', color: Colors.text, marginTop: 10 },
-  uploadSub: { fontSize: 12, color: Colors.subtext, marginTop: 4 },
+
+  uploadTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: Colors.text,
+    marginTop: Spacing.md,
+  },
+
+  uploadSubtext: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+    textAlign: 'center',
+  },
+
+  // ========================================================================
+  // BUTTONS
+  // ========================================================================
+  buttonGroup: {
+    marginHorizontal: Spacing.base,
+    gap: Spacing.md,
+  },
 });

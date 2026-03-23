@@ -1,18 +1,22 @@
 import React, { useRef, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Animated, Dimensions,
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { currentUser, freelancers, events, communities } from '@/data/mockData';
-import { Colors, Spacing, BorderRadius, Shadows } from '@/constants/theme';
+import { Colors, Spacing, BorderRadius, Shadows, Typography } from '@/constants/theme';
 import Avatar from '@/components/ui/Avatar';
-import Card from '@/components/ui/Card';
 import StarRating from '@/components/ui/StarRating';
 import SectionHeader from '@/components/ui/SectionHeader';
 import Badge from '@/components/ui/Badge';
+import ModernCard from '@/components/ui/ModernCard';
 
 const { width: W } = Dimensions.get('window');
 
@@ -36,54 +40,90 @@ function AnimatedCard({ children, delay = 0, style }: { children: React.ReactNod
 
 export default function HomeScreen() {
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? '☀️ Good Morning' : hour < 17 ? '👋 Hello' : '🌙 Good Evening';
+  const greeting =
+    hour < 12 ? 'Good morning' : hour < 17 ? 'Hello' : 'Good evening';
+  const greetingIcon =
+    hour < 12 ? 'white-balance-sunny' : hour < 17 ? 'hand-wave' : 'moon-waning-crescent';
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header */}
-      <LinearGradient colors={['#3730A3', '#4F46E5', '#7C3AED']} style={styles.header}>
-        <View style={styles.circle1} />
-        <View style={styles.circle2} />
-
+      <View style={styles.header}>
         <View style={styles.headerTop}>
-          <View>
-            <Text style={styles.greeting}>{greeting},</Text>
-            <Text style={styles.userName}>{currentUser.name.split(' ')[0]} 🎓</Text>
-            <Text style={styles.university}>{currentUser.university} · {currentUser.year}</Text>
+          <View style={styles.greetingSection}>
+            <View style={styles.greetingRow}>
+              <MaterialCommunityIcons
+                name={greetingIcon}
+                size={24}
+                color={Colors.primary}
+              />
+              <Text style={styles.greeting}>{greeting},</Text>
+            </View>
+            <Text style={styles.userName}>{currentUser.name.split(' ')[0]}</Text>
+            <Text style={styles.university}>
+              {currentUser.university} · {currentUser.year}
+            </Text>
           </View>
           <View style={styles.headerRight}>
-            <TouchableOpacity onPress={() => router.push('/notifications')} style={styles.notifBtn}>
-              <Ionicons name="notifications-outline" size={22} color="#fff" />
+            <TouchableOpacity
+              onPress={() => router.push('/notifications')}
+              style={styles.notifBtn}
+            >
+              <MaterialCommunityIcons
+                name="bell-outline"
+                size={24}
+                color={Colors.text}
+              />
               <View style={styles.notifDot} />
             </TouchableOpacity>
-            <Avatar uri={currentUser.avatar} size={44} showBorder borderColor="rgba(255,255,255,0.5)" />
+            <Avatar uri={currentUser.avatar} size={44} />
           </View>
         </View>
 
         {/* Quick Stats */}
         <View style={styles.statsRow}>
           {[
-            { label: 'Orders', value: currentUser.completedOrders, icon: '✅' },
-            { label: 'Earnings', value: `₹${(currentUser.earnings / 1000).toFixed(1)}k`, icon: '💰' },
-            { label: 'Rating', value: currentUser.rating.toFixed(1), icon: '⭐' },
+            { label: 'Orders', value: currentUser.completedOrders, icon: 'check-circle' },
+            { label: 'Earnings', value: `₹${(currentUser.earnings / 1000).toFixed(1)}k`, icon: 'wallet' },
+            { label: 'Rating', value: currentUser.rating.toFixed(1), icon: 'star' },
           ].map((stat) => (
-            <View key={stat.label} style={styles.statCard}>
-              <Text style={styles.statIcon}>{stat.icon}</Text>
+            <ModernCard key={stat.label} shadow="sm" padding="md" style={styles.statCard}>
+              <MaterialCommunityIcons
+                name={stat.icon as any}
+                size={20}
+                color={Colors.primary}
+                style={{ marginBottom: Spacing.sm }}
+              />
               <Text style={styles.statValue}>{stat.value}</Text>
               <Text style={styles.statLabel}>{stat.label}</Text>
-            </View>
+            </ModernCard>
           ))}
         </View>
-      </LinearGradient>
+      </View>
 
       {/* Quick Actions */}
       <AnimatedCard delay={100} style={styles.section}>
         <View style={styles.quickActions}>
           {[
-            { icon: 'add-circle-outline', label: 'Post Service', color: '#4F46E5', route: '/post-service' },
-            { icon: 'calendar-outline',   label: 'Create Event', color: '#EC4899', route: '/create-event' },
-            { icon: 'search-outline',     label: 'Find Services', color: '#10B981', route: '/(tabs)/marketplace' },
-            { icon: 'shield-checkmark-outline', label: 'Admin',  color: '#F59E0B', route: '/admin' },
+            {
+              icon: 'plus-circle-outline',
+              label: 'Post Service',
+              color: Colors.primary,
+              route: '/post-service',
+            },
+            {
+              icon: 'calendar-plus',
+              label: 'Create Event',
+              color: '#DC2626',
+              route: '/create-event',
+            },
+            {
+              icon: 'magnify',
+              label: 'Find Services',
+              color: '#16A34A',
+              route: '/(tabs)/marketplace',
+            },
+            { icon: 'shield-check', label: 'Admin', color: '#EA580C', route: '/admin' },
           ].map((action) => (
             <TouchableOpacity
               key={action.label}
@@ -91,8 +131,12 @@ export default function HomeScreen() {
               style={styles.quickAction}
               activeOpacity={0.8}
             >
-              <View style={[styles.quickIcon, { backgroundColor: action.color + '18' }]}>
-                <Ionicons name={action.icon as any} size={22} color={action.color} />
+              <View style={[styles.quickIcon, { backgroundColor: action.color + '15' }]}>
+                <MaterialCommunityIcons
+                  name={action.icon as any}
+                  size={24}
+                  color={action.color}
+                />
               </View>
               <Text style={styles.quickLabel}>{action.label}</Text>
             </TouchableOpacity>
@@ -103,11 +147,15 @@ export default function HomeScreen() {
       {/* Featured Freelancers */}
       <AnimatedCard delay={200} style={styles.section}>
         <SectionHeader
-          title="✨ Featured Freelancers"
+          title="Featured Freelancers"
           actionLabel="See all"
           onAction={() => router.push('/(tabs)/marketplace')}
         />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.horizontalScroll}
+        >
           {freelancers.map((freelancer) => (
             <TouchableOpacity
               key={freelancer.id}
@@ -115,15 +163,26 @@ export default function HomeScreen() {
               activeOpacity={0.9}
               style={styles.freelancerCard}
             >
-              <Avatar uri={freelancer.avatar} size={56} />
-              {freelancer.isVerified && (
-                <View style={styles.verifiedBadge}>
-                  <Text style={{ fontSize: 10 }}>✓</Text>
-                </View>
-              )}
-              <Text style={styles.freelancerName} numberOfLines={1}>{freelancer.name}</Text>
-              <Text style={styles.freelancerRole} numberOfLines={2}>{freelancer.role}</Text>
-              <StarRating rating={freelancer.rating} reviews={freelancer.reviews} size="sm" />
+              <View style={styles.freelancerHeader}>
+                <Avatar uri={freelancer.avatar} size={56} />
+                {freelancer.isVerified && (
+                  <MaterialCommunityIcons
+                    name="check-circle"
+                    size={16}
+                    color={Colors.primary}
+                    style={styles.verifiedBadge}
+                  />
+                )}
+              </View>
+              <Text style={styles.freelancerName} numberOfLines={1}>
+                {freelancer.name}
+              </Text>
+              <Text style={styles.freelancerRole} numberOfLines={2}>
+                {freelancer.role}
+              </Text>
+              <View style={styles.ratingContainer}>
+                <StarRating rating={freelancer.rating} reviews={freelancer.reviews} size="sm" />
+              </View>
               <Text style={styles.freelancerPrice}>
                 From ₹{Math.min(...freelancer.services.map((s) => s.price))}
               </Text>
@@ -135,7 +194,7 @@ export default function HomeScreen() {
       {/* Upcoming Events */}
       <AnimatedCard delay={300} style={styles.section}>
         <SectionHeader
-          title="🎉 Upcoming Events"
+          title="Upcoming Events"
           actionLabel="See all"
           onAction={() => router.push('/(tabs)/events')}
         />
@@ -146,17 +205,43 @@ export default function HomeScreen() {
             activeOpacity={0.9}
             style={styles.eventRow}
           >
-            <View style={[styles.eventEmoji, { backgroundColor: event.communityColor + '20' }]}>
-              <Text style={{ fontSize: 22 }}>{event.emoji}</Text>
+            <View
+              style={[
+                styles.eventIcon,
+                { backgroundColor: event.communityColor + '15' },
+              ]}
+            >
+              <MaterialCommunityIcons
+                name={event.emoji as any}
+                size={24}
+                color={event.communityColor}
+              />
             </View>
             <View style={styles.eventInfo}>
-              <Text style={styles.eventTitle} numberOfLines={1}>{event.title}</Text>
-              <Text style={styles.eventMeta}>{event.date} · {event.location.split(',')[0]}</Text>
+              <Text style={styles.eventTitle} numberOfLines={1}>
+                {event.title}
+              </Text>
+              <Text style={styles.eventMeta}>
+                {event.date} · {event.location.split(',')[0]}
+              </Text>
               <Text style={styles.eventCommunity}>{event.community}</Text>
             </View>
             <View style={styles.eventRight}>
-              <Badge label={event.isFree ? 'Free' : event.registrationFee || 'Paid'} variant={event.isFree ? 'free' : 'paid'} />
-              {event.isRegistered && <Text style={styles.registeredTag}>✓ Registered</Text>}
+              <Badge
+                label={event.isFree ? 'Free' : event.registrationFee || 'Paid'}
+                variant={event.isFree ? 'free' : 'paid'}
+                size="sm"
+              />
+              {event.isRegistered && (
+                <View style={styles.registeredTag}>
+                  <MaterialCommunityIcons
+                    name="check"
+                    size={12}
+                    color={Colors.success}
+                  />
+                  <Text style={styles.registeredText}>Registered</Text>
+                </View>
+              )}
             </View>
           </TouchableOpacity>
         ))}
@@ -165,7 +250,7 @@ export default function HomeScreen() {
       {/* Community Highlights */}
       <AnimatedCard delay={400} style={[styles.section, { marginBottom: 100 }]}>
         <SectionHeader
-          title="🏛️ Community Highlights"
+          title="Community Highlights"
           actionLabel="See all"
           onAction={() => router.push('/(tabs)/communities')}
         />
@@ -180,15 +265,33 @@ export default function HomeScreen() {
               activeOpacity={0.9}
               style={styles.communityPost}
             >
-              <View style={[styles.communityDot, { backgroundColor: item.community.color }]}>
-                <Text style={{ fontSize: 16 }}>{item.community.emoji}</Text>
+              <View
+                style={[
+                  styles.communityIcon,
+                  { backgroundColor: item.community.color + '15' },
+                ]}
+              >
+                <MaterialCommunityIcons
+                  name={item.community.emoji as any}
+                  size={22}
+                  color={item.community.color}
+                />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.communityName}>{item.community.name}</Text>
-                <Text style={styles.postTitle} numberOfLines={2}>{item.title}</Text>
+                <Text style={styles.postTitle} numberOfLines={2}>
+                  {item.title}
+                </Text>
                 <View style={styles.postMeta}>
                   <Text style={styles.postTime}>{item.time}</Text>
-                  <Text style={styles.postLikes}>❤️ {item.likes}</Text>
+                  <View style={styles.postLikes}>
+                    <MaterialCommunityIcons
+                      name="heart"
+                      size={12}
+                      color={Colors.error}
+                    />
+                    <Text style={styles.postLikesText}>{item.likes}</Text>
+                  </View>
                 </View>
               </View>
             </TouchableOpacity>
@@ -199,92 +302,271 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
+  },
   header: {
-    paddingTop: 56, paddingBottom: 24, paddingHorizontal: Spacing.base, overflow: 'hidden',
-  },
-  circle1: {
-    position: 'absolute', width: 240, height: 240, borderRadius: 120,
-    backgroundColor: 'rgba(255,255,255,0.06)', top: -60, right: -60,
-  },
-  circle2: {
-    position: 'absolute', width: 180, height: 180, borderRadius: 90,
-    backgroundColor: 'rgba(236,72,153,0.12)', bottom: -40, left: -40,
+    backgroundColor: Colors.white,
+    paddingTop: 56,
+    paddingBottom: Spacing.lg,
+    paddingHorizontal: Spacing.base,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   headerTop: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.lg,
   },
-  greeting: { color: 'rgba(255,255,255,0.75)', fontSize: 14, fontWeight: '500' },
-  userName: { color: '#fff', fontSize: 24, fontWeight: '800', marginTop: 2 },
-  university: { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 2 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  notifBtn: { padding: 8, position: 'relative' },
+  greetingSection: {
+    flex: 1,
+  },
+  greetingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.xs,
+  },
+  greeting: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+  },
+  userName: {
+    ...Typography.h1,
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  university: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  notifBtn: {
+    padding: Spacing.sm,
+    position: 'relative',
+  },
   notifDot: {
-    position: 'absolute', top: 8, right: 8,
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: '#EC4899', borderWidth: 1.5, borderColor: '#4F46E5',
+    position: 'absolute',
+    top: Spacing.sm,
+    right: Spacing.sm,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.error,
+    borderWidth: 1.5,
+    borderColor: Colors.white,
   },
 
-  statsRow: { flexDirection: 'row', gap: 8 },
+  /* Stats */
+  statsRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+  },
   statCard: {
-    flex: 1, backgroundColor: 'rgba(255,255,255,0.12)',
-    borderRadius: BorderRadius.md, padding: 12, alignItems: 'center',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)',
+    flex: 1,
+    alignItems: 'center',
   },
-  statIcon: { fontSize: 18, marginBottom: 4 },
-  statValue: { color: '#fff', fontSize: 17, fontWeight: '800' },
-  statLabel: { color: 'rgba(255,255,255,0.65)', fontSize: 10, fontWeight: '500', marginTop: 2 },
+  statValue: {
+    ...Typography.h4,
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  statLabel: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
 
-  section: { paddingHorizontal: Spacing.base, paddingTop: Spacing.lg },
+  /* Section */
+  section: {
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.lg,
+  },
 
-  quickActions: { flexDirection: 'row', gap: 12, marginBottom: 4 },
-  quickAction: { flex: 1, alignItems: 'center', gap: 6 },
+  /* Quick Actions */
+  quickActions: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  quickAction: {
+    flex: 1,
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
   quickIcon: {
-    width: 52, height: 52, borderRadius: 16,
-    alignItems: 'center', justifyContent: 'center',
+    width: 52,
+    height: 52,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  quickLabel: { fontSize: 11, fontWeight: '600', color: Colors.text, textAlign: 'center' },
+  quickLabel: {
+    ...Typography.bodySmall,
+    color: Colors.text,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
 
-  horizontalScroll: { marginHorizontal: -Spacing.base, paddingHorizontal: Spacing.base },
+  /* Horizontal Scroll */
+  horizontalScroll: {
+    marginHorizontal: -Spacing.base,
+    paddingHorizontal: Spacing.base,
+  },
   freelancerCard: {
-    width: 130, marginRight: 12, backgroundColor: Colors.card,
-    borderRadius: BorderRadius.lg, padding: 14,
-    ...Shadows.md, position: 'relative',
+    width: 140,
+    marginRight: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    ...Shadows.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  freelancerHeader: {
+    position: 'relative',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
   },
   verifiedBadge: {
-    position: 'absolute', top: 10, right: 10,
-    width: 18, height: 18, borderRadius: 9,
-    backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center',
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
   },
-  freelancerName: { fontSize: 13, fontWeight: '700', color: Colors.text, marginTop: 8 },
-  freelancerRole: { fontSize: 11, color: Colors.subtext, marginTop: 2, marginBottom: 6, lineHeight: 15 },
-  freelancerPrice: { fontSize: 12, fontWeight: '700', color: Colors.primary, marginTop: 6 },
+  freelancerName: {
+    ...Typography.h4,
+    color: Colors.text,
+    textAlign: 'center',
+    marginBottom: Spacing.xs,
+  },
+  freelancerRole: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
+    lineHeight: 15,
+  },
+  ratingContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  freelancerPrice: {
+    ...Typography.h4,
+    color: Colors.primary,
+    textAlign: 'center',
+    fontWeight: '700',
+  },
 
+  /* Events */
   eventRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: Colors.card, borderRadius: BorderRadius.lg,
-    padding: 14, marginBottom: 10, ...Shadows.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
-  eventEmoji: { width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  eventInfo: { flex: 1 },
-  eventTitle: { fontSize: 14, fontWeight: '700', color: Colors.text },
-  eventMeta: { fontSize: 12, color: Colors.subtext, marginTop: 2 },
-  eventCommunity: { fontSize: 11, color: Colors.primary, fontWeight: '600', marginTop: 2 },
-  eventRight: { alignItems: 'flex-end', gap: 4 },
-  registeredTag: { fontSize: 10, color: Colors.success, fontWeight: '600' },
+  eventIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  eventInfo: {
+    flex: 1,
+  },
+  eventTitle: {
+    ...Typography.h4,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  eventMeta: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  eventCommunity: {
+    ...Typography.bodySmall,
+    color: Colors.primary,
+    fontWeight: '600',
+    marginTop: Spacing.xs,
+  },
+  eventRight: {
+    alignItems: 'flex-end',
+    gap: Spacing.sm,
+  },
+  registeredTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.successLight,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
+  },
+  registeredText: {
+    ...Typography.caption,
+    color: Colors.success,
+    fontWeight: '600',
+  },
 
+  /* Community Posts */
   communityPost: {
-    flexDirection: 'row', gap: 12,
-    backgroundColor: Colors.card, borderRadius: BorderRadius.lg,
-    padding: 14, marginBottom: 10, ...Shadows.sm,
+    flexDirection: 'row',
+    gap: Spacing.md,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
   },
-  communityDot: {
-    width: 44, height: 44, borderRadius: 14,
-    alignItems: 'center', justifyContent: 'center',
+  communityIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  communityName: { fontSize: 11, fontWeight: '700', color: Colors.primary, marginBottom: 2 },
-  postTitle: { fontSize: 13, fontWeight: '600', color: Colors.text, lineHeight: 18 },
-  postMeta: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  postTime: { fontSize: 11, color: Colors.subtext },
-  postLikes: { fontSize: 11, color: Colors.subtext },
+  communityName: {
+    ...Typography.label,
+    color: Colors.primary,
+    marginBottom: Spacing.xs,
+  },
+  postTitle: {
+    ...Typography.h4,
+    color: Colors.text,
+    lineHeight: 18,
+    fontWeight: '600',
+  },
+  postMeta: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginTop: Spacing.sm,
+    alignItems: 'center',
+  },
+  postTime: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+  postLikes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  postLikesText: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
 });

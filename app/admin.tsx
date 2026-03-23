@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { freelancers, communities, events } from '@/data/mockData';
-import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
+import { Colors, BorderRadius, Spacing, Shadows, Typography } from '@/constants/theme';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import Avatar from '@/components/ui/Avatar';
+import ScreenHeader from '@/components/ui/ScreenHeader';
 
 type TabType = 'overview' | 'verifications' | 'flagged';
 
@@ -18,27 +19,20 @@ export default function AdminPanel() {
   const verifiedFreelancers = freelancers.filter((f) => f.isVerified);
 
   const STATS = [
-    { label: 'Total Users',      value: '1,284',  icon: '👥', color: '#4F46E5' },
-    { label: 'Active Freelancers', value: '342',  icon: '💼', color: '#7C3AED' },
-    { label: 'Orders Today',     value: '47',     icon: '📦', color: '#10B981' },
-    { label: 'Revenue Today',    value: '₹8.2k', icon: '💰', color: '#F59E0B' },
-    { label: 'Events Active',    value: events.length.toString(), icon: '🎉', color: '#EC4899' },
-    { label: 'Communities',      value: communities.length.toString(), icon: '🏛️', color: '#0EA5E9' },
+    { label: 'Total Users',         value: '1,284',  icon: 'account-multiple', color: Colors.primary },
+    { label: 'Active Freelancers',  value: '342',    icon: 'briefcase-variant', color: '#7C3AED' },
+    { label: 'Orders Today',        value: '47',     icon: 'package-variant', color: Colors.success },
+    { label: 'Revenue Today',       value: '₹8.2k',  icon: 'wallet-plus', color: Colors.warning },
+    { label: 'Events Active',       value: events.length.toString(), icon: 'calendar-check', color: Colors.error },
+    { label: 'Communities',         value: communities.length.toString(), icon: 'account-group', color: Colors.primary + '80' },
   ];
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Admin Banner */}
-      <View style={styles.banner}>
-        <Ionicons name="shield-checkmark" size={28} color={Colors.warning} />
-        <View>
-          <Text style={styles.bannerTitle}>Admin Panel</Text>
-          <Text style={styles.bannerSub}>onlyStudents · Platform Management</Text>
-        </View>
-        <View style={styles.bannerBadge}>
-          <Text style={styles.bannerBadgeText}>Admin</Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title="Admin Panel"
+        subtitle="Platform Management"
+      />
 
       {/* Tabs */}
       <View style={styles.tabs}>
@@ -47,7 +41,7 @@ export default function AdminPanel() {
             key={tab}
             onPress={() => setActiveTab(tab)}
             style={[styles.tab, activeTab === tab && styles.tabActive]}
-            activeOpacity={0.8}
+            activeOpacity={0.7}
           >
             <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>
               {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -66,7 +60,7 @@ export default function AdminPanel() {
             <View style={styles.statsGrid}>
               {STATS.map((stat) => (
                 <View key={stat.label} style={[styles.statCard, { borderLeftColor: stat.color }]}>
-                  <Text style={styles.statIcon}>{stat.icon}</Text>
+                  <MaterialCommunityIcons name={stat.icon} size={24} color={stat.color} />
                   <Text style={styles.statValue}>{stat.value}</Text>
                   <Text style={styles.statLabel}>{stat.label}</Text>
                 </View>
@@ -74,36 +68,42 @@ export default function AdminPanel() {
             </View>
 
             <Card style={styles.card}>
-              <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
+              <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="lightning-bolt" size={18} color={Colors.warning} />
+                <Text style={styles.sectionTitle}>Quick Actions</Text>
+              </View>
               {[
-                { icon: 'checkmark-circle-outline', label: 'Approve Pending Verifications', color: Colors.success },
-                { icon: 'flag-outline',             label: 'Review Flagged Content',        color: Colors.error },
-                { icon: 'mail-outline',             label: 'Send Platform Announcement',    color: Colors.primary },
-                { icon: 'bar-chart-outline',        label: 'View Full Analytics',           color: Colors.secondary },
-                { icon: 'download-outline',         label: 'Export Reports (CSV)',          color: Colors.warning },
+                { icon: 'check-circle', label: 'Approve Pending Verifications', color: Colors.success },
+                { icon: 'flag',         label: 'Review Flagged Content',        color: Colors.error },
+                { icon: 'email',        label: 'Send Platform Announcement',    color: Colors.primary },
+                { icon: 'chart-box',    label: 'View Full Analytics',           color: Colors.primary },
+                { icon: 'download',     label: 'Export Reports (CSV)',          color: Colors.warning },
               ].map((action) => (
                 <TouchableOpacity
                   key={action.label}
                   style={styles.actionRow}
                   onPress={() => Alert.alert('Admin Action', `"${action.label}" would open here.`)}
-                  activeOpacity={0.8}
+                  activeOpacity={0.7}
                 >
-                  <View style={[styles.actionIcon, { backgroundColor: action.color + '18' }]}>
-                    <Ionicons name={action.icon as any} size={18} color={action.color} />
+                  <View style={[styles.actionIcon, { backgroundColor: action.color + '15' }]}>
+                    <MaterialCommunityIcons name={action.icon} size={18} color={action.color} />
                   </View>
                   <Text style={styles.actionLabel}>{action.label}</Text>
-                  <Ionicons name="chevron-forward" size={16} color={Colors.subtext} />
+                  <MaterialCommunityIcons name="chevron-right" size={16} color={Colors.textSecondary} />
                 </TouchableOpacity>
               ))}
             </Card>
 
             <Card style={styles.card}>
-              <Text style={styles.sectionTitle}>📊 Platform Health</Text>
+              <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="chart-line" size={18} color={Colors.primary} />
+                <Text style={styles.sectionTitle}>Platform Health</Text>
+              </View>
               {[
                 { label: 'Order Completion Rate', value: '94.2%', color: Colors.success },
                 { label: 'Avg Response Time',     value: '2.4 hrs', color: Colors.primary },
                 { label: 'Dispute Rate',           value: '1.8%',  color: Colors.warning },
-                { label: 'User Retention (30d)',  value: '78%',   color: Colors.secondary },
+                { label: 'User Retention (30d)',  value: '78%',   color: Colors.success },
               ].map((metric) => (
                 <View key={metric.label} style={styles.metricRow}>
                   <Text style={styles.metricLabel}>{metric.label}</Text>
@@ -117,52 +117,104 @@ export default function AdminPanel() {
         {/* ── VERIFICATIONS TAB ── */}
         {activeTab === 'verifications' && (
           <>
-            <Text style={styles.groupLabel}>
-              ⏳ Pending Verification ({pendingVerifications.length})
-            </Text>
-            {pendingVerifications.map((f) => (
-              <View key={f.id} style={styles.verifyCard}>
-                <Avatar uri={f.avatar} size={48} />
-                <View style={styles.verifyInfo}>
-                  <Text style={styles.verifyName}>{f.name}</Text>
-                  <Text style={styles.verifyRole}>{f.role}</Text>
-                  <Text style={styles.verifyUni}>{f.university}</Text>
-                </View>
-                <View style={styles.verifyActions}>
-                  <TouchableOpacity
-                    style={styles.approveBtn}
-                    onPress={() => Alert.alert('✅ Verified', `${f.name} has been verified.`)}
-                  >
-                    <Ionicons name="checkmark" size={16} color="#fff" />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.rejectBtn}
-                    onPress={() => Alert.alert('❌ Rejected', `${f.name}'s application was rejected.`)}
-                  >
-                    <Ionicons name="close" size={16} color="#fff" />
-                  </TouchableOpacity>
-                </View>
+            {/* Pending Section */}
+            <View style={styles.verifySectionHeader}>
+              <View style={styles.verifyStatusIcon}>
+                <MaterialCommunityIcons name="clock" size={20} color={Colors.warning} />
               </View>
-            ))}
-
-            <Text style={[styles.groupLabel, { marginTop: 16 }]}>
-              ✅ Verified Freelancers ({verifiedFreelancers.length})
-            </Text>
-            {verifiedFreelancers.map((f) => (
-              <View key={f.id} style={[styles.verifyCard, styles.verifyCardVerified]}>
-                <Avatar uri={f.avatar} size={48} />
-                <View style={styles.verifyInfo}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                    <Text style={styles.verifyName}>{f.name}</Text>
-                    <View style={styles.verifiedBadge}>
-                      <Ionicons name="checkmark" size={8} color="#fff" />
+              <View>
+                <Text style={styles.verifyStatusTitle}>Pending Review</Text>
+                <Text style={styles.verifyStatusSub}>{pendingVerifications.length} applications awaiting approval</Text>
+              </View>
+            </View>
+            <View style={styles.verifyCardsContainer}>
+              {pendingVerifications.length === 0 ? (
+                <View style={styles.emptyVerify}>
+                  <Text style={styles.emptyVerifyText}>No pending verifications</Text>
+                </View>
+              ) : (
+                pendingVerifications.map((f, idx) => (
+                  <View key={f.id} style={[styles.verifyCardModern, styles.verifyCardPending]}>
+                    <View style={styles.verifyCardTop}>
+                      <Avatar uri={f.avatar} size={56} />
+                      <View style={styles.verifyInfoModern}>
+                        <Text style={styles.verifyNameModern}>{f.name}</Text>
+                        <Text style={styles.verifyRoleModern}>{f.role}</Text>
+                        <Text style={styles.verifyUniModern}>{f.university}</Text>
+                      </View>
+                      <View style={styles.verifyNumberBadge}>
+                        <Text style={styles.verifyNumberText}>{idx + 1}</Text>
+                      </View>
+                    </View>
+                    <View style={styles.verifyActionButtons}>
+                      <TouchableOpacity
+                        style={[styles.verifyActionBtn, styles.verifyApproveBtn]}
+                        onPress={() => Alert.alert('Verified', `${f.name} has been verified.`)}
+                        activeOpacity={0.7}
+                      >
+                        <MaterialCommunityIcons name="check-circle" size={18} color={Colors.success} />
+                        <Text style={styles.verifyActionBtnText}>Approve</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[styles.verifyActionBtn, styles.verifyRejectBtn]}
+                        onPress={() => Alert.alert('Rejected', `${f.name}'s application was rejected.`)}
+                        activeOpacity={0.7}
+                      >
+                        <MaterialCommunityIcons name="close-circle" size={18} color={Colors.error} />
+                        <Text style={styles.verifyActionBtnText}>Reject</Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <Text style={styles.verifyRole}>{f.role}</Text>
-                </View>
-                <Badge label="Verified" variant="verified" />
+                ))
+              )}
+            </View>
+
+            {/* Verified Section */}
+            <View style={[styles.verifySectionHeader, { marginTop: Spacing.xxl }]}>
+              <View style={styles.verifyStatusIconVerified}>
+                <MaterialCommunityIcons name="check-decagram" size={20} color={Colors.success} />
               </View>
-            ))}
+              <View>
+                <Text style={styles.verifyStatusTitle}>Verified Freelancers</Text>
+                <Text style={styles.verifyStatusSub}>{verifiedFreelancers.length} trusted professionals</Text>
+              </View>
+            </View>
+            <View style={styles.verifyCardsContainer}>
+              {verifiedFreelancers.map((f) => (
+                <View key={f.id} style={[styles.verifyCardModern, styles.verifyCardVerifiedModern]}>
+                  <View style={styles.verifyCardTop}>
+                    <Avatar uri={f.avatar} size={56} />
+                    <View style={styles.verifyInfoModern}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm }}>
+                        <Text style={styles.verifyNameModern}>{f.name}</Text>
+                        <View style={styles.verifyVerifiedCheckmark}>
+                          <MaterialCommunityIcons name="check" size={10} color="#fff" />
+                        </View>
+                      </View>
+                      <Text style={styles.verifyRoleModern}>{f.role}</Text>
+                      <View style={styles.verifyStatsRow}>
+                        <View style={styles.verifyStatBadge}>
+                          <MaterialCommunityIcons name="star" size={12} color={Colors.warning} />
+                          <Text style={styles.verifyStatText}>{f.rating}</Text>
+                        </View>
+                        <Text style={styles.verifyStatDivider}>•</Text>
+                        <View style={styles.verifyStatBadge}>
+                          <MaterialCommunityIcons name="check-circle" size={12} color={Colors.success} />
+                          <Text style={styles.verifyStatText}>{f.completedOrders} orders</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <View style={styles.verifyCardBottom}>
+                    <Text style={styles.verifyCardBottomText}>{f.university}</Text>
+                    <View style={styles.verifyResponsiveTime}>
+                      <MaterialCommunityIcons name="clock-outline" size={12} color={Colors.textSecondary} />
+                      <Text style={styles.verifyResponsiveTimeText}>{f.responseTime}</Text>
+                    </View>
+                  </View>
+                </View>
+              ))}
+            </View>
           </>
         )}
 
@@ -170,7 +222,9 @@ export default function AdminPanel() {
         {activeTab === 'flagged' && (
           <>
             <View style={styles.emptyState}>
-              <Text style={{ fontSize: 48 }}>🎉</Text>
+              <View style={styles.emptyIcon}>
+                <MaterialCommunityIcons name="check-circle" size={48} color={Colors.success} />
+              </View>
               <Text style={styles.emptyTitle}>No Flagged Content</Text>
               <Text style={styles.emptySub}>
                 All posts and services are clean. The platform auto-flags suspicious content.
@@ -178,7 +232,10 @@ export default function AdminPanel() {
             </View>
 
             <Card style={styles.card}>
-              <Text style={styles.sectionTitle}>🛡️ Auto-Moderation Rules Active</Text>
+              <View style={styles.cardHeader}>
+                <MaterialCommunityIcons name="shield-check" size={18} color={Colors.success} />
+                <Text style={styles.sectionTitle}>Auto-Moderation Rules Active</Text>
+              </View>
               {[
                 'Spam detection (keyword filtering)',
                 'Price manipulation alerts',
@@ -187,7 +244,7 @@ export default function AdminPanel() {
                 'Fake review detection',
               ].map((rule, i) => (
                 <View key={i} style={styles.ruleRow}>
-                  <Ionicons name="checkmark-circle" size={14} color={Colors.success} />
+                  <MaterialCommunityIcons name="check-circle" size={14} color={Colors.success} />
                   <Text style={styles.ruleText}>{rule}</Text>
                 </View>
               ))}
@@ -202,85 +259,342 @@ export default function AdminPanel() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  banner: {
-    flexDirection: 'row', alignItems: 'center', gap: 14,
-    backgroundColor: '#FFFBEB', margin: 16, borderRadius: 16,
-    padding: 16, borderWidth: 1, borderColor: '#FDE68A',
+  container: {
+    flex: 1,
+    backgroundColor: Colors.surface,
   },
-  bannerTitle: { fontSize: 17, fontWeight: '700', color: Colors.text },
-  bannerSub: { fontSize: 12, color: Colors.subtext, marginTop: 2 },
-  bannerBadge: {
-    marginLeft: 'auto', backgroundColor: Colors.warning,
-    paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8,
-  },
-  bannerBadgeText: { fontSize: 11, fontWeight: '700', color: '#fff' },
   tabs: {
-    flexDirection: 'row', marginHorizontal: 16, marginBottom: 4,
-    backgroundColor: '#F3F4F6', borderRadius: 12, padding: 4,
+    flexDirection: 'row',
+    marginHorizontal: Spacing.base,
+    marginBottom: Spacing.sm,
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.xs,
+    ...Shadows.sm,
   },
-  tab: { flex: 1, paddingVertical: 9, borderRadius: 9, alignItems: 'center' },
-  tabActive: { backgroundColor: '#fff', ...Shadows.sm },
-  tabText: { fontSize: 13, fontWeight: '600', color: Colors.subtext },
-  tabTextActive: { color: Colors.text },
-  tabBadge: { color: Colors.error },
+  tab: {
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabActive: {
+    backgroundColor: Colors.primary,
+  },
+  tabText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  tabTextActive: {
+    color: Colors.white,
+  },
+  tabBadge: {
+    color: Colors.error,
+  },
 
-  body: { padding: Spacing.base },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 14 },
+  body: {
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.base,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
   statCard: {
-    width: '30.5%', backgroundColor: '#fff', borderRadius: 12,
-    padding: 12, borderLeftWidth: 3, ...Shadows.sm,
+    width: '31%',
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    borderLeftWidth: 3,
+    alignItems: 'center',
+    ...Shadows.sm,
   },
-  statIcon: { fontSize: 18, marginBottom: 6 },
-  statValue: { fontSize: 18, fontWeight: '800', color: Colors.text },
-  statLabel: { fontSize: 10, color: Colors.subtext, marginTop: 2 },
+  statValue: {
+    ...Typography.h4,
+    color: Colors.text,
+    fontWeight: '700',
+    marginTop: Spacing.sm,
+  },
+  statLabel: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+    textAlign: 'center',
+  },
 
-  card: { marginBottom: 14 },
-  sectionTitle: { fontSize: 15, fontWeight: '700', color: Colors.text, marginBottom: 14 },
+  card: {
+    marginBottom: Spacing.lg,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  sectionTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
   actionRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.border,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
   actionIcon: {
-    width: 36, height: 36, borderRadius: 10,
-    alignItems: 'center', justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  actionLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: Colors.text },
+  actionLabel: {
+    flex: 1,
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '600',
+  },
   metricRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.border,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
   },
-  metricLabel: { fontSize: 14, color: Colors.subtext },
-  metricValue: { fontSize: 16, fontWeight: '800' },
-
-  groupLabel: { fontSize: 13, fontWeight: '700', color: Colors.subtext, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
-  verifyCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: '#fff', borderRadius: BorderRadius.lg,
-    padding: 14, marginBottom: 8, ...Shadows.sm,
+  metricLabel: {
+    ...Typography.body,
+    color: Colors.textSecondary,
   },
-  verifyCardVerified: { backgroundColor: '#ECFDF5' },
-  verifyInfo: { flex: 1 },
-  verifyName: { fontSize: 14, fontWeight: '700', color: Colors.text },
-  verifyRole: { fontSize: 12, color: Colors.subtext, marginTop: 2 },
-  verifyUni: { fontSize: 11, color: Colors.primary, fontWeight: '600', marginTop: 2 },
-  verifyActions: { flexDirection: 'row', gap: 8 },
-  approveBtn: {
-    width: 36, height: 36, borderRadius: 10,
-    backgroundColor: Colors.success, alignItems: 'center', justifyContent: 'center',
-  },
-  rejectBtn: {
-    width: 36, height: 36, borderRadius: 10,
-    backgroundColor: Colors.error, alignItems: 'center', justifyContent: 'center',
-  },
-  verifiedBadge: {
-    width: 16, height: 16, borderRadius: 8,
-    backgroundColor: Colors.success, alignItems: 'center', justifyContent: 'center',
+  metricValue: {
+    ...Typography.h4,
+    fontWeight: '700',
   },
 
-  emptyState: { alignItems: 'center', padding: 28, marginBottom: 14 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: Colors.text, marginTop: 10 },
-  emptySub: { fontSize: 14, color: Colors.subtext, textAlign: 'center', marginTop: 6, lineHeight: 20 },
-  ruleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  ruleText: { fontSize: 14, color: Colors.text },
+  verifySectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  verifyStatusIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.warning + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  verifyStatusIconVerified: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.success + '15',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  verifyStatusTitle: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  verifyStatusSub: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  verifyCardsContainer: {
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  verifyCardModern: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+  },
+  verifyCardPending: {
+    backgroundColor: Colors.warning + '08',
+  },
+  verifyCardVerifiedModern: {
+    backgroundColor: Colors.white,
+  },
+  verifyCardTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  verifyInfoModern: {
+    flex: 1,
+    gap: Spacing.xs,
+  },
+  verifyNameModern: {
+    ...Typography.body,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  verifyRoleModern: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+  },
+  verifyUniModern: {
+    ...Typography.caption,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  verifyReadyText: {
+    ...Typography.caption,
+    color: Colors.success,
+    fontWeight: '600',
+  },
+  verifyStatsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.xs,
+  },
+  verifyStatBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
+  },
+  verifyStatText: {
+    ...Typography.caption,
+    color: Colors.text,
+    fontWeight: '700',
+  },
+  verifyStatDivider: {
+    ...Typography.caption,
+    color: Colors.border,
+  },
+  verifyCardBottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+  },
+  verifyCardBottomText: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  verifyResponsiveTime: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  verifyResponsiveTimeText: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  verifyNumberBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.warning + '20',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  verifyNumberText: {
+    ...Typography.body,
+    color: Colors.warning,
+    fontWeight: '700',
+  },
+  verifyVerifiedCheckmark: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: Colors.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  verifyActionButtons: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  verifyActionBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+  },
+  verifyApproveBtn: {
+    borderColor: Colors.success,
+    backgroundColor: Colors.success + '10',
+  },
+  verifyRejectBtn: {
+    borderColor: Colors.error,
+    backgroundColor: Colors.error + '10',
+  },
+  verifyActionBtnText: {
+    ...Typography.bodySmall,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  emptyVerify: {
+    paddingVertical: Spacing.lg,
+    alignItems: 'center',
+  },
+  emptyVerifyText: {
+    ...Typography.body,
+    color: Colors.textSecondary,
+  },
+
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: Spacing.xxxl,
+    marginBottom: Spacing.lg,
+  },
+  emptyIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.success + '10',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  emptyTitle: {
+    ...Typography.h4,
+    color: Colors.text,
+    fontWeight: '700',
+    marginTop: Spacing.sm,
+  },
+  emptySub: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+    lineHeight: 20,
+  },
+  ruleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  ruleText: {
+    ...Typography.body,
+    color: Colors.text,
+  },
 });
