@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { View, TextInput as RNTextInput, StyleSheet, TextInputProps, ViewStyle, Text } from 'react-native';
+import { View, TextInput as RNTextInput, StyleSheet, TextInputProps, Text } from 'react-native';
 import { Colors, Spacing, BorderRadius, Typography } from '@/constants/theme';
 
 interface Props extends TextInputProps {
   label?: string;
   error?: string;
   icon?: React.ReactNode;
-  style?: ViewStyle;
 }
 
-export default function ModernTextInput({ label, error, icon, style, ...props }: Props) {
+export default function ModernTextInput({ label, error, icon, ...props }: Props) {
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container]}>
       <View
         style={[
           styles.inputWrapper,

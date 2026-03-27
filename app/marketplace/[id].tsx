@@ -122,11 +122,11 @@ export default function FreelancerProfile() {
             <Text style={styles.packageDesc}>{service.description}</Text>
             <View style={styles.packageMeta}>
               <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={14} color={Colors.subtext} />
+                <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
                 <Text style={styles.metaText}>{service.delivery} delivery</Text>
               </View>
               <View style={styles.metaItem}>
-                <Ionicons name="refresh-outline" size={14} color={Colors.subtext} />
+                <Ionicons name="refresh-outline" size={14} color={Colors.textSecondary} />
                 <Text style={styles.metaText}>{service.revisions} revisions</Text>
               </View>
             </View>
@@ -189,7 +189,7 @@ export default function FreelancerProfile() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   notFound: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  notFoundText: { fontSize: 16, color: Colors.subtext },
+  notFoundText: { fontSize: 16, color: Colors.textSecondary },
   hero: { paddingTop: 100, paddingBottom: 28 },
   heroContent: { alignItems: 'center', paddingHorizontal: Spacing.base },
   avatarWrapper: { position: 'relative', marginBottom: 12 },
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
   card: { marginBottom: 14 },
   section: { marginBottom: 14 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.text, marginBottom: 12 },
-  bio: { fontSize: 14, color: Colors.subtext, lineHeight: 21 },
+  bio: { fontSize: 14, color: Colors.textSecondary, lineHeight: 21 },
   skills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   skillChip: {
     backgroundColor: Colors.primary + '14', borderRadius: BorderRadius.full,
@@ -236,14 +236,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6', alignItems: 'center',
   },
   packageTabActive: { backgroundColor: Colors.primary },
-  packageTabText: { fontSize: 12, fontWeight: '600', color: Colors.subtext },
+  packageTabText: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
   packageTabTextActive: { color: '#fff' },
   packageDetail: {},
   packageTitle: { fontSize: 15, fontWeight: '700', color: Colors.text, marginBottom: 6 },
-  packageDesc: { fontSize: 13, color: Colors.subtext, lineHeight: 19, marginBottom: 12 },
+  packageDesc: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginBottom: 12 },
   packageMeta: { flexDirection: 'row', gap: 16, marginBottom: 12 },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontSize: 12, color: Colors.subtext },
+  metaText: { fontSize: 12, color: Colors.textSecondary },
   packagePriceRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingTop: 12, borderTopWidth: 1, borderTopColor: Colors.border,
@@ -259,10 +259,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', borderRadius: BorderRadius.lg, ...Shadows.sm,
   },
   ratingBig: { fontSize: 40, fontWeight: '800', color: Colors.text },
-  ratingNote: { fontSize: 12, color: Colors.subtext, marginTop: 2 },
+  ratingNote: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
   reviewCard: { marginBottom: 10 },
   reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
   reviewMeta: { flex: 1 },
   reviewAuthor: { fontSize: 13, fontWeight: '700', color: Colors.text },
-  reviewText: { fontSize: 13, color: Colors.subtext, lineHeight: 19 },
+  reviewText: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
 });

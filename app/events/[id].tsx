@@ -221,5 +221,5 @@ const styles = StyleSheet.create({
     padding: 16, borderWidth: 1, borderColor: Colors.success + '30',
   },
   registeredBannerText: { fontSize: 14, fontWeight: '600', color: Colors.success },
-  feeNote: { textAlign: 'center', fontSize: 13, color: Colors.subtext, marginTop: 8 },
+  feeNote: { textAlign: 'center', fontSize: 13, color: Colors.textSecondary, marginTop: 8 },
 });

@@ -26,7 +26,7 @@ export default function NotificationsScreen() {
       >
         {item.unread && <View style={styles.unreadDot} />}
         <View style={[styles.iconBox, { backgroundColor: colorConfig.bg }]}>
-          <MaterialCommunityIcons name={item.icon} size={24} color={colorConfig.icon} />
+          <MaterialCommunityIcons name={item.icon as any} size={24} color={colorConfig.icon} />
         </View>
         <View style={styles.notifContent}>
           <Text style={styles.notifTitle}>{item.title}</Text>

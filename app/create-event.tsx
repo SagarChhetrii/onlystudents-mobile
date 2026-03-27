@@ -105,7 +105,7 @@ export default function CreateEventScreen() {
           {/* Title Input */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Event Title *</Text>
-            <View style={[styles.input, errors.title && styles.inputError]}>
+            <View style={[styles.input, errors.title ? styles.inputError : undefined]}>
               <MaterialCommunityIcons name="pencil" size={16} color={Colors.textSecondary} />
               <TextInput
                 style={styles.inputText}
@@ -126,7 +126,7 @@ export default function CreateEventScreen() {
           {/* Description Input */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Description *</Text>
-            <View style={[styles.textArea, errors.description && styles.inputError]}>
+            <View style={[styles.textArea, errors.description ? styles.inputError : undefined]}>
               <TextInput
                 style={styles.textAreaInput}
                 placeholder="Describe your event, agenda, expectations, prizes..."
@@ -196,7 +196,7 @@ export default function CreateEventScreen() {
           <View style={styles.twoColumnRow}>
             <View style={styles.halfField}>
               <Text style={styles.label}>Date *</Text>
-              <View style={[styles.input, errors.date && styles.inputError]}>
+              <View style={[styles.input, errors.date ? styles.inputError : undefined]}>
                 <MaterialCommunityIcons name="calendar" size={16} color={Colors.textSecondary} />
                 <TextInput
                   style={styles.inputText}
@@ -230,7 +230,7 @@ export default function CreateEventScreen() {
           {/* Location Input */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Location *</Text>
-            <View style={[styles.input, errors.location && styles.inputError]}>
+            <View style={[styles.input, errors.location ? styles.inputError : undefined]}>
               <MaterialCommunityIcons name="map-marker" size={16} color={Colors.textSecondary} />
               <TextInput
                 style={styles.inputText}
@@ -290,7 +290,7 @@ export default function CreateEventScreen() {
           {!isFree && (
             <View style={styles.fieldGroup}>
               <Text style={styles.label}>Registration Fee *</Text>
-              <View style={[styles.input, errors.fee && styles.inputError]}>
+              <View style={[styles.input, errors.fee ? styles.inputError : undefined]}>
                 <Text style={styles.currencySymbol}>₹</Text>
                 <TextInput
                   style={[styles.inputText, styles.feeInput]}

@@ -113,15 +113,15 @@ export default function CommunityPage() {
 
               <View style={styles.postFooter}>
                 <TouchableOpacity style={styles.postAction}>
-                  <Ionicons name="heart-outline" size={17} color={Colors.subtext} />
+                  <Ionicons name="heart-outline" size={17} color={Colors.textSecondary} />
                   <Text style={styles.postActionText}>{post.likes}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.postAction}>
-                  <Ionicons name="chatbubble-outline" size={16} color={Colors.subtext} />
+                  <Ionicons name="chatbubble-outline" size={16} color={Colors.textSecondary} />
                   <Text style={styles.postActionText}>{post.comments}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.postAction}>
-                  <Ionicons name="share-social-outline" size={17} color={Colors.subtext} />
+                  <Ionicons name="share-social-outline" size={17} color={Colors.textSecondary} />
                 </TouchableOpacity>
               </View>
             </View>

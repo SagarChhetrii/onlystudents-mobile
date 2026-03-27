@@ -60,7 +60,7 @@ export default function AdminPanel() {
             <View style={styles.statsGrid}>
               {STATS.map((stat) => (
                 <View key={stat.label} style={[styles.statCard, { borderLeftColor: stat.color }]}>
-                  <MaterialCommunityIcons name={stat.icon} size={24} color={stat.color} />
+                  <MaterialCommunityIcons name={stat.icon as any} size={24} color={stat.color} />
                   <Text style={styles.statValue}>{stat.value}</Text>
                   <Text style={styles.statLabel}>{stat.label}</Text>
                 </View>
@@ -86,7 +86,7 @@ export default function AdminPanel() {
                   activeOpacity={0.7}
                 >
                   <View style={[styles.actionIcon, { backgroundColor: action.color + '15' }]}>
-                    <MaterialCommunityIcons name={action.icon} size={18} color={action.color} />
+                    <MaterialCommunityIcons name={action.icon as any} size={18} color={action.color} />
                   </View>
                   <Text style={styles.actionLabel}>{action.label}</Text>
                   <MaterialCommunityIcons name="chevron-right" size={16} color={Colors.textSecondary} />

@@ -36,8 +36,7 @@ export default function Avatar({ uri, name, size = 48, style, showBorder = false
             height: size,
             borderRadius: size / 2,
           },
-          borderStyle,
-          style,
+          showBorder && { borderWidth: 2.5, borderColor },
         ]}
         contentFit="cover"
       />

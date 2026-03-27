@@ -144,7 +144,7 @@ function CategoryFilter({
           ]}
         >
           <MaterialCommunityIcons
-            name={category.icon}
+            name={category.icon as any}
             size={16}
             color={activeCategory === category.id ? Colors.white : Colors.primary}
           />

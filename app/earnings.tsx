@@ -266,11 +266,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: Spacing.sm,
   },
-  chartSubtitle: {
-    ...Typography.bodySmall,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.lg,
-  },
   section: {
     marginBottom: Spacing.lg,
   },
