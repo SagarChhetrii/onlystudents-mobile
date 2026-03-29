@@ -1,10 +1,11 @@
 import { Tabs } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/constants/theme';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Colors, Spacing, BorderRadius, Typography } from '@/constants/theme';
 
 type TabIconProps = {
-  name: keyof typeof Ionicons.glyphMap;
+  name: string;
   color: string;
   focused: boolean;
 };
@@ -12,21 +13,32 @@ type TabIconProps = {
 function TabIcon({ name, color, focused }: TabIconProps) {
   return (
     <View style={[styles.iconContainer, focused && styles.iconActive]}>
-      <Ionicons name={name} size={22} color={color} />
+      <MaterialCommunityIcons name={name as any} size={24} color={color} />
     </View>
   );
 }
 
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textSecondary,
-        tabBarStyle: styles.tabBar,
+        tabBarInactiveTintColor: Colors.text,
+        tabBarStyle: [
+          styles.tabBar,
+          {
+            height: 70 + insets.bottom,
+            paddingTop: 8,
+            paddingBottom: Math.max(insets.bottom, 8),
+          },
+        ],
         tabBarLabelStyle: styles.tabLabel,
+        tabBarItemStyle: styles.tabItem,
         tabBarShowLabel: true,
+        tabBarIconStyle: styles.tabIconStyle,
       }}
     >
       <Tabs.Screen
@@ -52,7 +64,7 @@ export default function TabsLayout() {
         options={{
           title: 'Community',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'people' : 'people-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'account-multiple' : 'account-multiple-outline'} color={color} focused={focused} />
           ),
         }}
       />
@@ -70,7 +82,7 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'person' : 'person-outline'} color={color} focused={focused} />
+            <TabIcon name={focused ? 'account' : 'account-outline'} color={color} focused={focused} />
           ),
         }}
       />
@@ -80,30 +92,36 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#fff',
-    borderTopWidth: 0,
-    height: 70,
-    paddingBottom: 10,
-    paddingTop: 8,
+    backgroundColor: Colors.white,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 3,
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
+    paddingHorizontal: 0,
+  },
+  tabItem: {
+    paddingTop: 2,
+    paddingBottom: 0,
+  },
+  tabIconStyle: {
+    marginBottom: 0,
   },
   iconContainer: {
-    width: 36,
-    height: 28,
+    width: 48,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 10,
+    borderRadius: BorderRadius.md,
   },
   iconActive: {
-    backgroundColor: Colors.primary + '18',
+    backgroundColor: Colors.primary + '12',
   },
 });

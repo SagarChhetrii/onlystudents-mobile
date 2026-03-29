@@ -1,225 +1,504 @@
-import React, { useState } from 'react';
-import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert,
-} from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { events } from '@/data/mockData';
-import { Colors, BorderRadius, Spacing, Shadows } from '@/constants/theme';
+import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
 import PrimaryButton from '@/components/ui/PrimaryButton';
-import Badge from '@/components/ui/Badge';
-import Card from '@/components/ui/Card';
 
-export default function EventDetails() {
+function getCapacityPercent(registeredCount: number, maxCapacity: number) {
+  if (maxCapacity === 0) {
+    return 0;
+  }
+  return Math.min(100, Math.round((registeredCount / maxCapacity) * 100));
+}
+
+export default function EventDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const event = events.find((e) => e.id === id);
+  const event = events.find((entry) => entry.id === id);
+
   const [isRegistered, setIsRegistered] = useState(event?.isRegistered ?? false);
   const [loading, setLoading] = useState(false);
 
   if (!event) {
     return (
       <View style={styles.notFound}>
-        <Text>Event not found</Text>
+        <Text style={styles.notFoundText}>Event not found</Text>
       </View>
     );
   }
 
-  const pct = Math.round((event.registeredCount / event.maxCapacity) * 100);
-  const spotsLeft = event.maxCapacity - event.registeredCount;
+  const registrationCount = isRegistered && !event.isRegistered
+    ? event.registeredCount + 1
+    : event.registeredCount;
+
+  const spotsLeft = Math.max(0, event.maxCapacity - registrationCount);
+  const capacityPercent = getCapacityPercent(registrationCount, event.maxCapacity);
+
+  const pricingLabel = event.isFree ? 'Free Entry' : event.registrationFee || 'Paid';
 
   const handleRegister = () => {
+    if (spotsLeft === 0 || isRegistered || loading) {
+      return;
+    }
+
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       setIsRegistered(true);
-      Alert.alert('🎉 Registered!', `You've successfully registered for ${event.title}`);
-    }, 1200);
+      Alert.alert('Registration successful', `You are now registered for ${event.title}.`);
+    }, 1100);
   };
+
+  const ctaTitle = useMemo(() => {
+    if (isRegistered) {
+      return 'You are registered';
+    }
+
+    if (spotsLeft === 0) {
+      return 'Event is full';
+    }
+
+    if (event.isFree) {
+      return 'Register for free';
+    }
+
+    return `Register for ${event.registrationFee}`;
+  }, [event.isFree, event.registrationFee, isRegistered, spotsLeft]);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Hero */}
-      <LinearGradient colors={[event.communityColor, '#1E1B4B']} style={styles.hero}>
-        <View style={styles.heroBg} />
-        <View style={styles.heroContent}>
-          <View style={[styles.emojiBox, { backgroundColor: 'rgba(255,255,255,0.15)' }]}>
-            <Text style={styles.emoji}>{event.emoji}</Text>
-          </View>
-          <Text style={styles.community}>{event.community}</Text>
-          <Text style={styles.title}>{event.title}</Text>
+      <LinearGradient colors={[event.communityColor, '#0F2B6B']} style={styles.hero}>
+        <View style={styles.heroOverlay} />
 
-          <View style={styles.heroBadges}>
-            <Badge label={event.isFree ? 'Free Entry' : event.registrationFee || 'Paid'} variant={event.isFree ? 'free' : 'paid'} size="md" />
-            {event.prize && (
-              <View style={styles.prizeBadge}>
-                <Text style={styles.prizeText}>🏆 Prize: {event.prize}</Text>
-              </View>
-            )}
+        <View style={styles.heroBadgeRow}>
+          <View style={styles.topBadge}>
+            <MaterialCommunityIcons name="account-group-outline" size={13} color={Colors.white} />
+            <Text style={styles.topBadgeText} numberOfLines={1}>
+              {event.community}
+            </Text>
+          </View>
+          <View style={styles.topBadge}>
+            <MaterialCommunityIcons
+              name={event.isFree ? 'ticket-confirmation-outline' : 'cash-multiple'}
+              size={13}
+              color={Colors.white}
+            />
+            <Text style={styles.topBadgeText}>{pricingLabel}</Text>
+          </View>
+        </View>
+
+        <View style={styles.heroIconWrap}>
+          <MaterialCommunityIcons name={event.emoji as any} size={42} color={Colors.white} />
+        </View>
+
+        <Text style={styles.heroTitle}>{event.title}</Text>
+        <Text style={styles.heroSubtitle}>{event.description}</Text>
+
+        <View style={styles.heroMetaRow}>
+          <View style={styles.heroMetaPill}>
+            <MaterialCommunityIcons name="calendar-blank-outline" size={14} color={Colors.white} />
+            <Text style={styles.heroMetaText}>{event.date}</Text>
+          </View>
+          <View style={styles.heroMetaPill}>
+            <MaterialCommunityIcons name="clock-time-four-outline" size={14} color={Colors.white} />
+            <Text style={styles.heroMetaText}>{event.time}</Text>
           </View>
         </View>
       </LinearGradient>
 
-      <View style={styles.body}>
-        {/* Quick Info */}
-        <Card style={styles.infoCard}>
-          {[
-            { icon: 'calendar-outline', label: 'Date', value: event.date },
-            { icon: 'time-outline',     label: 'Time', value: event.time },
-            { icon: 'location-outline', label: 'Location', value: event.location },
-          ].map((item) => (
-            <View key={item.label} style={styles.infoRow}>
-              <View style={styles.infoIconBox}>
-                <Ionicons name={item.icon as any} size={18} color={Colors.primary} />
-              </View>
-              <View style={styles.infoText}>
-                <Text style={styles.infoLabel}>{item.label}</Text>
-                <Text style={styles.infoValue}>{item.value}</Text>
-              </View>
+      <View style={styles.content}>
+        <View style={styles.infoCard}>
+          <Text style={styles.sectionTitle}>Event details</Text>
+
+          <View style={styles.infoRow}>
+            <View style={styles.infoIconWrap}>
+              <MaterialCommunityIcons name="map-marker-outline" size={16} color={Colors.primaryDark} />
             </View>
-          ))}
-        </Card>
+            <View style={styles.infoTextBlock}>
+              <Text style={styles.infoLabel}>Location</Text>
+              <Text style={styles.infoValue}>{event.location}</Text>
+            </View>
+          </View>
 
-        {/* Description */}
-        <Card style={styles.card}>
-          <Text style={styles.sectionTitle}>About this Event</Text>
-          <Text style={styles.description}>{event.description}</Text>
-        </Card>
+          <View style={styles.infoRow}>
+            <View style={styles.infoIconWrap}>
+              <MaterialCommunityIcons name="account-group-outline" size={16} color={Colors.primaryDark} />
+            </View>
+            <View style={styles.infoTextBlock}>
+              <Text style={styles.infoLabel}>Attendance</Text>
+              <Text style={styles.infoValue}>
+                {registrationCount} registered out of {event.maxCapacity}
+              </Text>
+            </View>
+          </View>
 
-        {/* Tags */}
-        <View style={styles.tags}>
+          {event.prize ? (
+            <View style={styles.prizeRow}>
+              <MaterialCommunityIcons name="trophy-outline" size={16} color="#855700" />
+              <Text style={styles.prizeText}>Prize: {event.prize}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        <View style={styles.tagSection}>
           {event.tags.map((tag) => (
-            <View key={tag} style={styles.tag}>
+            <View key={tag} style={styles.tagChip}>
               <Text style={styles.tagText}>{tag}</Text>
             </View>
           ))}
         </View>
 
-        {/* Capacity */}
-        <Card style={styles.card}>
+        <View style={styles.capacityCard}>
           <View style={styles.capacityHeader}>
-            <Text style={styles.sectionTitle}>Registration</Text>
-            <Text style={styles.spotsLeft}>
-              {spotsLeft > 0 ? `${spotsLeft} spots left` : 'Full!'}
+            <Text style={styles.sectionTitle}>Seat availability</Text>
+            <Text style={styles.spotsText}>
+              {spotsLeft > 0 ? `${spotsLeft} seats left` : 'No seats left'}
             </Text>
           </View>
 
-          <View style={styles.capacityNumbers}>
-            <Text style={styles.registeredCount}>{event.registeredCount}</Text>
-            <Text style={styles.capacityDivider}>/</Text>
-            <Text style={styles.maxCapacity}>{event.maxCapacity}</Text>
-            <Text style={styles.capacityLabel}> registered</Text>
-          </View>
-
-          <View style={styles.barBg}>
+          <View style={styles.capacityTrack}>
             <View
               style={[
-                styles.barFill,
+                styles.capacityFill,
                 {
-                  width: `${pct}%` as any,
-                  backgroundColor: pct > 90 ? Colors.error : pct > 75 ? Colors.warning : Colors.primary,
+                  width: `${capacityPercent}%` as any,
+                  backgroundColor:
+                    capacityPercent >= 90
+                      ? Colors.error
+                      : capacityPercent >= 75
+                        ? Colors.warning
+                        : Colors.primary,
                 },
               ]}
             />
           </View>
-          <Text style={styles.pctText}>{pct}% capacity filled</Text>
-        </Card>
 
-        {/* Register Button */}
-        <View style={styles.cta}>
+          <Text style={styles.capacityCaption}>{capacityPercent}% of seats filled</Text>
+        </View>
+
+        <View style={styles.ctaSection}>
           {isRegistered ? (
             <View style={styles.registeredBanner}>
-              <Ionicons name="checkmark-circle" size={24} color={Colors.success} />
-              <Text style={styles.registeredBannerText}>You're registered for this event!</Text>
+              <MaterialCommunityIcons name="check-circle" size={20} color={Colors.success} />
+              <Text style={styles.registeredBannerText}>You are registered for this event.</Text>
             </View>
-          ) : (
-            <>
-              <PrimaryButton
-                title={event.isFree ? 'Register for Free →' : `Register for ${event.registrationFee} →`}
-                onPress={handleRegister}
-                loading={loading}
-                disabled={spotsLeft === 0}
-                fullWidth
-                size="lg"
-              />
-              {!event.isFree && (
-                <Text style={styles.feeNote}>Registration fee: {event.registrationFee}</Text>
-              )}
-            </>
-          )}
+          ) : null}
+
+          <PrimaryButton
+            title={ctaTitle}
+            onPress={handleRegister}
+            loading={loading}
+            disabled={spotsLeft === 0 || isRegistered}
+            size="lg"
+            fullWidth
+          />
+
+          {!event.isFree ? (
+            <Text style={styles.feeNote}>Registration fee applies at checkout: {event.registrationFee}</Text>
+          ) : null}
+
+          {spotsLeft === 0 && !isRegistered ? (
+            <TouchableOpacity activeOpacity={0.85} style={styles.waitlistButton}>
+              <Text style={styles.waitlistText}>Join waitlist</Text>
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
 
-      <View style={{ height: 40 }} />
+      <View style={styles.bottomSpacer} />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  notFound: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  hero: { paddingTop: 96, paddingBottom: 28 },
-  heroBg: {
-    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.25)',
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F7FC',
   },
-  heroContent: { paddingHorizontal: Spacing.base, alignItems: 'center' },
-  emojiBox: {
-    width: 80, height: 80, borderRadius: 22,
-    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
-  },
-  emoji: { fontSize: 40 },
-  community: { fontSize: 13, color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginBottom: 6 },
-  title: {
-    fontSize: 24, fontWeight: '800', color: '#fff', textAlign: 'center', marginBottom: 12, lineHeight: 30,
-  },
-  heroBadges: { flexDirection: 'row', gap: 8, flexWrap: 'wrap', justifyContent: 'center' },
-  prizeBadge: {
-    backgroundColor: 'rgba(245,158,11,0.25)',
-    paddingHorizontal: 12, paddingVertical: 5,
-    borderRadius: BorderRadius.full, borderWidth: 1, borderColor: 'rgba(245,158,11,0.4)',
-  },
-  prizeText: { fontSize: 13, fontWeight: '600', color: '#FEF3C7' },
 
-  body: { padding: Spacing.base },
-  card: { marginBottom: 14 },
-  infoCard: { marginBottom: 14, gap: 14 },
-  infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  infoIconBox: {
-    width: 40, height: 40, borderRadius: 12,
-    backgroundColor: Colors.primary + '12', alignItems: 'center', justifyContent: 'center',
+  notFound: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F4F7FC',
   },
-  infoText: { flex: 1 },
-  infoLabel: { fontSize: 11, color: Colors.subtext, fontWeight: '600', marginBottom: 2 },
-  infoValue: { fontSize: 14, color: Colors.text, fontWeight: '600' },
 
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: Colors.text, marginBottom: 10 },
-  description: { fontSize: 14, color: Colors.subtext, lineHeight: 21 },
+  notFoundText: {
+    ...Typography.h3,
+    color: Colors.text,
+  },
 
-  tags: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 14 },
-  tag: {
-    backgroundColor: Colors.primary + '14', paddingHorizontal: 12, paddingVertical: 6,
+  hero: {
+    paddingTop: 88,
+    paddingBottom: Spacing.xl,
+    paddingHorizontal: Spacing.base,
+    overflow: 'hidden',
+  },
+
+  heroOverlay: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  },
+
+  heroBadgeRow: {
+    zIndex: 2,
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    marginBottom: Spacing.lg,
+    flexWrap: 'wrap',
+  },
+
+  topBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    maxWidth: '100%',
   },
-  tagText: { fontSize: 12, fontWeight: '600', color: Colors.primary },
 
-  capacityHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  spotsLeft: { fontSize: 13, fontWeight: '700', color: Colors.warning },
-  capacityNumbers: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 12 },
-  registeredCount: { fontSize: 28, fontWeight: '800', color: Colors.primary },
-  capacityDivider: { fontSize: 20, color: Colors.subtext, marginHorizontal: 4 },
-  maxCapacity: { fontSize: 20, fontWeight: '700', color: Colors.text },
-  capacityLabel: { fontSize: 14, color: Colors.subtext },
-  barBg: { height: 8, backgroundColor: '#E5E7EB', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
-  barFill: { height: '100%', borderRadius: 4 },
-  pctText: { fontSize: 12, color: Colors.subtext },
+  topBadgeText: {
+    ...Typography.caption,
+    color: Colors.white,
+    fontWeight: '700',
+    maxWidth: 220,
+  },
 
-  cta: { marginTop: 4, marginBottom: 16 },
+  heroIconWrap: {
+    zIndex: 2,
+    width: 88,
+    height: 88,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+    marginBottom: Spacing.base,
+  },
+
+  heroTitle: {
+    ...Typography.h1,
+    zIndex: 2,
+    color: Colors.white,
+    lineHeight: 36,
+    marginBottom: Spacing.sm,
+  },
+
+  heroSubtitle: {
+    ...Typography.body,
+    zIndex: 2,
+    color: 'rgba(255,255,255,0.86)',
+    lineHeight: 22,
+    marginBottom: Spacing.base,
+  },
+
+  heroMetaRow: {
+    zIndex: 2,
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    flexWrap: 'wrap',
+  },
+
+  heroMetaPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: BorderRadius.full,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+
+  heroMetaText: {
+    ...Typography.caption,
+    color: Colors.white,
+    fontWeight: '700',
+  },
+
+  content: {
+    paddingHorizontal: Spacing.base,
+    marginTop: Spacing.base,
+    gap: Spacing.base,
+  },
+
+  infoCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: '#DEE6F3',
+    padding: Spacing.base,
+    ...Shadows.md,
+  },
+
+  sectionTitle: {
+    ...Typography.h3,
+    color: '#132649',
+    marginBottom: Spacing.md,
+  },
+
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+
+  infoIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: BorderRadius.md,
+    backgroundColor: '#ECF3FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  infoTextBlock: {
+    flex: 1,
+  },
+
+  infoLabel: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+  },
+
+  infoValue: {
+    ...Typography.body,
+    color: '#2D3F5F',
+    fontWeight: '600',
+    marginTop: 2,
+  },
+
+  prizeRow: {
+    marginTop: Spacing.xs,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: BorderRadius.full,
+    backgroundColor: '#FFF2DE',
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+
+  prizeText: {
+    ...Typography.caption,
+    color: '#7B5000',
+    fontWeight: '700',
+  },
+
+  tagSection: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+  },
+
+  tagChip: {
+    borderRadius: BorderRadius.full,
+    backgroundColor: '#EAF0FC',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+
+  tagText: {
+    ...Typography.caption,
+    color: '#2D4A86',
+    fontWeight: '700',
+  },
+
+  capacityCard: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: '#DEE6F3',
+    padding: Spacing.base,
+    ...Shadows.md,
+  },
+
+  capacityHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+
+  spotsText: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    fontWeight: '700',
+  },
+
+  capacityTrack: {
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: '#DFE6F2',
+    overflow: 'hidden',
+    marginBottom: Spacing.xs,
+  },
+
+  capacityFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+
+  capacityCaption: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+  },
+
+  ctaSection: {
+    gap: Spacing.sm,
+  },
+
   registeredBanner: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    backgroundColor: Colors.success + '12', borderRadius: 16,
-    padding: 16, borderWidth: 1, borderColor: Colors.success + '30',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: '#EAF8F0',
+    borderWidth: 1,
+    borderColor: '#BFE8D0',
+    paddingHorizontal: Spacing.base,
+    paddingVertical: Spacing.md,
   },
-  registeredBannerText: { fontSize: 14, fontWeight: '600', color: Colors.success },
-  feeNote: { textAlign: 'center', fontSize: 13, color: Colors.textSecondary, marginTop: 8 },
+
+  registeredBannerText: {
+    ...Typography.body,
+    color: Colors.success,
+    fontWeight: '700',
+  },
+
+  feeNote: {
+    ...Typography.bodySmall,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+
+  waitlistButton: {
+    alignSelf: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: Spacing.base,
+  },
+
+  waitlistText: {
+    ...Typography.body,
+    color: Colors.primaryDark,
+    fontWeight: '700',
+  },
+
+  bottomSpacer: {
+    height: 44,
+  },
 });

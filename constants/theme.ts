@@ -1,10 +1,7 @@
 export const Colors = {
-  // Primary - calm, modern blue
   primary: '#2563EB',
   primaryLight: '#DBEAFE',
   primaryDark: '#1E40AF',
-  
-  // Neutral palette
   background: '#FFFFFF',
   surface: '#F9FAFB',
   border: '#E5E7EB',
@@ -12,8 +9,6 @@ export const Colors = {
   textSecondary: '#6B7280',
   textTertiary: '#9CA3AF',
   subtext: '#9CA3AF',
-  
-  // Semantic colors
   success: '#10B981',
   successLight: '#D1FAE5',
   warning: '#F59E0B',
@@ -22,8 +17,6 @@ export const Colors = {
   errorLight: '#FEE2E2',
   info: '#3B82F6',
   infoLight: '#DBEAFE',
-  
-  // Additional
   white: '#FFFFFF',
   black: '#000000',
   disabled: '#D1D5DB',
