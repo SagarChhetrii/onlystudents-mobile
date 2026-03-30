@@ -413,3 +413,121 @@ export const recentOrders = [
   { id: 'o4', client: 'Natyam Society', service: 'Event Highlight Film', amount: 1200, status: 'completed',   time: '1 week ago' },
   { id: 'o5', client: 'Karan P.',       service: 'YouTube Video Edit',   amount: 500,  status: 'completed',   time: '2 weeks ago' },
 ];
+
+export type ChatRole = 'client' | 'freelancer';
+
+export interface ChatMessage {
+  id: string;
+  senderRole: ChatRole;
+  senderName: string;
+  text: string;
+  time: string;
+  isRead: boolean;
+}
+
+export interface ChatThread {
+  id: string;
+  freelancerId: string;
+  freelancerName: string;
+  freelancerAvatar: string;
+  clientName: string;
+  clientAvatar: string;
+  projectTitle: string;
+  status: 'inquiry' | 'in-progress' | 'completed';
+  messages: ChatMessage[];
+}
+
+export const chatThreads: ChatThread[] = [
+  {
+    id: 'chat-f1',
+    freelancerId: 'f1',
+    freelancerName: 'Arjun Mehta',
+    freelancerAvatar: 'https://i.pravatar.cc/150?img=11',
+    clientName: 'Priya Sharma',
+    clientAvatar: 'https://i.pravatar.cc/150?img=47',
+    projectTitle: 'Event Highlight Reel',
+    status: 'in-progress',
+    messages: [
+      {
+        id: 'm1',
+        senderRole: 'client',
+        senderName: 'Priya Sharma',
+        text: 'Hey Arjun, can you deliver a 45 second highlight reel by Saturday evening?',
+        time: '10:10 AM',
+        isRead: true,
+      },
+      {
+        id: 'm2',
+        senderRole: 'freelancer',
+        senderName: 'Arjun Mehta',
+        text: 'Yes, that works. Please share your preferred music vibe and any sponsor logos.',
+        time: '10:14 AM',
+        isRead: true,
+      },
+      {
+        id: 'm3',
+        senderRole: 'client',
+        senderName: 'Priya Sharma',
+        text: 'Done. Sending assets now. Need one version for Instagram and one for YouTube.',
+        time: '10:18 AM',
+        isRead: false,
+      },
+    ],
+  },
+  {
+    id: 'chat-f2',
+    freelancerId: 'f2',
+    freelancerName: 'Priya Sharma',
+    freelancerAvatar: 'https://i.pravatar.cc/150?img=47',
+    clientName: 'Rahul Gupta',
+    clientAvatar: 'https://i.pravatar.cc/150?img=68',
+    projectTitle: 'Landing Page UI Kit',
+    status: 'inquiry',
+    messages: [
+      {
+        id: 'm4',
+        senderRole: 'client',
+        senderName: 'Rahul Gupta',
+        text: 'Hi, I need a clean SaaS dashboard UI by next week. Are you available?',
+        time: 'Yesterday',
+        isRead: true,
+      },
+      {
+        id: 'm5',
+        senderRole: 'freelancer',
+        senderName: 'Priya Sharma',
+        text: 'Yes, available. Share your wireframe and I can send first draft in 2 days.',
+        time: 'Yesterday',
+        isRead: true,
+      },
+    ],
+  },
+  {
+    id: 'chat-f4',
+    freelancerId: 'f4',
+    freelancerName: 'Rahul Gupta',
+    freelancerAvatar: 'https://i.pravatar.cc/150?img=68',
+    clientName: 'Natyam Society',
+    clientAvatar: 'https://i.pravatar.cc/150?img=24',
+    projectTitle: 'Event Registration Microsite',
+    status: 'completed',
+    messages: [
+      {
+        id: 'm6',
+        senderRole: 'client',
+        senderName: 'Natyam Society',
+        text: 'The site is live and working great. Thank you!',
+        time: '2 days ago',
+        isRead: true,
+      },
+      {
+        id: 'm7',
+        senderRole: 'freelancer',
+        senderName: 'Rahul Gupta',
+        text: 'Awesome. Happy to help with post-event analytics dashboard too.',
+        time: '2 days ago',
+        isRead: true,
+      },
+    ],
+  },
+];

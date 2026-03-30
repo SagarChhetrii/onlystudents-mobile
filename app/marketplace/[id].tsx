@@ -13,7 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { freelancers } from '@/data/mockData';
+import { chatThreads, freelancers } from '@/data/mockData';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
 import Avatar from '@/components/ui/Avatar';
 import StarRating from '@/components/ui/StarRating';
@@ -164,7 +164,25 @@ export default function FreelancerProfile() {
           <TouchableOpacity
             style={[styles.quickActionButton, styles.quickActionSecondary]}
             activeOpacity={0.86}
-            onPress={() => Alert.alert('Message', `You can now message ${freelancer.name}.`) }
+            onPress={() => {
+              const existingThread = chatThreads.find((thread) => thread.freelancerId === freelancer.id);
+
+              if (existingThread) {
+                router.push({ pathname: '/chats/[id]', params: { id: existingThread.id } });
+                return;
+              }
+
+              router.push({
+                pathname: '/chats/[id]',
+                params: {
+                  id: `new-${freelancer.id}`,
+                  freelancerId: freelancer.id,
+                  freelancerName: freelancer.name,
+                  freelancerAvatar: freelancer.avatar,
+                  projectTitle: 'New Project Discussion',
+                },
+              });
+            }}
           >
             <MaterialCommunityIcons name="message-outline" size={16} color={Colors.primaryDark} />
             <Text style={styles.quickActionSecondaryText}>Message</Text>

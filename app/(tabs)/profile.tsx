@@ -13,6 +13,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { currentUser } from '@/data/mockData';
 import { BorderRadius, Colors, Shadows, Spacing, Typography } from '@/constants/theme';
+import { useAppMode } from '@/constants/appMode';
 import Avatar from '@/components/ui/Avatar';
 import ModernButton from '@/components/ui/ModernButton';
 
@@ -99,7 +100,7 @@ function SettingsItem({
 }
 
 export default function ProfileScreen() {
-  const [isFreelancer, setIsFreelancer] = useState(currentUser.isFreelancer);
+  const { isFreelancerMode, setIsFreelancerMode } = useAppMode();
   const [avatarUri] = useState(currentUser.avatar);
 
   const profileInfo = useMemo(
@@ -279,13 +280,13 @@ export default function ProfileScreen() {
           <SettingsItem
             icon="briefcase-outline"
             title="Freelancer Mode"
-            subtitle={isFreelancer ? 'Visible for student gigs' : 'Hidden from marketplace gigs'}
+            subtitle={isFreelancerMode ? 'Visible for student gigs' : 'Hidden from marketplace gigs'}
             trailing={
               <Switch
-                value={isFreelancer}
-                onValueChange={setIsFreelancer}
+                value={isFreelancerMode}
+                onValueChange={setIsFreelancerMode}
                 trackColor={{ false: '#D7DFED', true: '#C9DBFF' }}
-                thumbColor={isFreelancer ? Colors.primary : '#90A0BA'}
+                thumbColor={isFreelancerMode ? Colors.primary : '#90A0BA'}
               />
             }
           />
