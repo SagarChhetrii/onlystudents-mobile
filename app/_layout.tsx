@@ -21,10 +21,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="marketplace/[id]"
           options={{
-            headerShown: true,
-            headerTitle: '',
-            headerTransparent: true,
-            headerTintColor: '#fff',
+            headerShown: false,
           }}
         />
         <Stack.Screen
@@ -39,10 +36,7 @@ export default function RootLayout() {
         <Stack.Screen
           name="events/[id]"
           options={{
-            headerShown: true,
-            headerTitle: '',
-            headerTransparent: true,
-            headerTintColor: '#fff',
+            headerShown: false,
           }}
         />
         <Stack.Screen
